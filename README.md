@@ -26,4 +26,4 @@ Below is a description of each file.
 
 **MyPeripheralManager:** How the iphone behaves as a peripheral. Logic behind advertising, connecting, and responding to requests from a central bluetooth low energy device (e.g. raspberry-pi)
 
-Note: This is not the final version of this document. 
+Note: This is not the final version of this document. More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added. 
