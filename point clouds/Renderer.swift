@@ -344,7 +344,7 @@ class Renderer {
         guard let currentFrame = session.currentFrame else {
             return
         }
-        
+        printedpointclouds(frame: currentFrame)
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
@@ -356,19 +356,26 @@ class Renderer {
         }
     }
     
+    
+    func printedpointclouds(frame: ARFrame){
+        if let pname = frame.rawFeaturePoints{
+            if pname == nil {
+                print("fault")
+                
+            }
+            else {
+                print(pname.points)
+                print(" ")
+                print(" ")
+                
+            }
+        }
+    }
+    
     func updateSharedUniforms(frame: ARFrame) {
         // Update the shared uniforms of the frame
         
-//        if let pname = frame.rawFeaturePoints{
-//            if pname == nil {
-//                print("fault")
-//            }
-//            else {
-//                print(pname.points)
-//                print(" ")
-//                print(" ")
-//            }
-//        }
+
         
         let uniforms = sharedUniformBufferAddress.assumingMemoryBound(to: SharedUniforms.self)
         
