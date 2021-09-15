@@ -7,6 +7,11 @@ This app is the union of the [Displaying a Point Cloud Using Scene Depth](https:
 The point clouds.xcodeproj file cannot be opened with Xcode version 12.
 To get Xcode 13 beta, [click here](https://developer.apple.com/xcode/)
 
+To run the app:
+1. Connect your phone to computer (USB to lightening).
+2. In Xcode select your phone from the list of possible devices the app can run on. This is a drop down menu at the very top of the screen.
+3. Click on the sideways triangle (<-- need to find offical name for this) in the upper left hand corner of your Xcode window.
+
 Below is a description of each file.
 
 **AppDelegate:** Handles lifecycle and setup.
