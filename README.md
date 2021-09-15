@@ -1,8 +1,8 @@
 # Point-Cloud-iPhone-App
 
 
-This app is the union of two sample apps.
-(a) [Displaying a Point Cloud Using Scene Depth](https://developer.apple.com/documentation/arkit/environmental_analysis/displaying_a_point_cloud_using_scene_depth)
+This app is the union of two sample apps.__
+(a) [Displaying a Point Cloud Using Scene Depth](https://developer.apple.com/documentation/arkit/environmental_analysis/displaying_a_point_cloud_using_scene_depth)__
 (b) [Transferring Data Between Bluetooth Low Energy Devices](https://developer.apple.com/documentation/corebluetooth/transferring_data_between_bluetooth_low_energy_devices)
 
 
