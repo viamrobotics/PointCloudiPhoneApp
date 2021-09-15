@@ -10,8 +10,8 @@ To get Xcode 13 beta, [click here](https://developer.apple.com/xcode/)
 Below is a description of each file.
 
 **AppDelegate:** Handles lifecycle and setup.
-E.g. If the app is launched what existing code needs to be called on
-E.g. If the app is now in the background what existing code needs to be called on so the app can be used again at a later point
+- E.g. If the app is launched what existing code needs to be called on
+- E.g. If the app is now in the background what existing code needs to be called on so the app can be used again at a later point
 
 **Shaders & ShaderTypes:** All the rendering functions that we need to display the camera's view on a user's screen and add on the point clouds.
 
