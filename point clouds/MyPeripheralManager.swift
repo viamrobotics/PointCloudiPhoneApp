@@ -7,16 +7,21 @@
 
 import Foundation
 import CoreBluetooth
+import UIKit
 
 class MyPeripheralManager: NSObject, CBPeripheralManagerDelegate{
     static let shared = MyPeripheralManager()
     var peripheralManager: CBPeripheralManager = CBPeripheralManager()
     
-    let serviceUUID: CBUUID = CBUUID(string: "00008101000E2D4E2190801E")
-    let characteristicUUID: CBUUID = CBUUID(string: "00008101000E2D4E2190801E")
+    
+    var serviceUUID: CBUUID = CBUUID()
+    var characteristicUUID: CBUUID = CBUUID()
     let advertisementDataLocalNameKey : String = "max8Chars"
     
     func start() {
+        let deviceUUID: String = UIDevice.current.identifierForVendor!.uuidString
+        serviceUUID = CBUUID(string: deviceUUID)
+        characteristicUUID = CBUUID(string: deviceUUID)
         if !peripheralManager.isAdvertising{
             peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         }
