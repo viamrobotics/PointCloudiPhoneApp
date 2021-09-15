@@ -14,14 +14,14 @@ class MyPeripheralManager: NSObject, CBPeripheralManagerDelegate{
     var peripheralManager: CBPeripheralManager = CBPeripheralManager()
     
     
-    let serviceUUID: CBUUID = CBUUID()
-    let characteristicUUID: CBUUID = CBUUID()
+    var serviceUUID: CBUUID = CBUUID()
+    var characteristicUUID: CBUUID = CBUUID()
     let advertisementDataLocalNameKey : String = "max8Chars"
     
     func start() {
         let deviceUUID: String = UIDevice.current.identifierForVendor!.uuidString
-        _ = CBUUID(string: deviceUUID)
-        _ = CBUUID(string: deviceUUID)
+        serviceUUID = CBUUID(string: deviceUUID)
+        characteristicUUID = CBUUID(string: deviceUUID)
         if !peripheralManager.isAdvertising{
             peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
         }
