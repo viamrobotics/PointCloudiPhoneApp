@@ -1,16 +1,45 @@
 # Point-Cloud-iPhone-App
 
-
-This app is the union of the [Displaying a Point Cloud Using Scene Depth](https://developer.apple.com/documentation/arkit/environmental_analysis/displaying_a_point_cloud_using_scene_depth) app and the [Transferring Data Between Bluetooth Low Energy Devices](https://developer.apple.com/documentation/corebluetooth/transferring_data_between_bluetooth_low_energy_devices) app
-
-
 The 'point clouds.xcodeproj' file cannot be opened with Xcode version 12.
 To get Xcode 13 beta, [click here](https://developer.apple.com/xcode/).
 
 To run the app:
-1. Connect your phone to computer (USB to lightening).
-2. In Xcode select your phone from the list of possible devices the app can run on. This is a drop down menu at the very top of the screen.
-3. Click on the sideways triangle (<-- need to find offical name for this) in the upper left hand corner of your Xcode window.
+1. Open the 'point clouds.xcodeproj' file
+2. Click the button on the upper left side of the screen. It is to the left of the sideways triangle button. You should now see a side screen now.
+3. Immediately below the button you just clicked there should be a row of icons.
+4. Click on the leftmost icon. Icon looks like a folder.
+5. You should now see a drop down menu containing this app's files
+6. There are two values called 'point clouds'. Click on point clouds that has app store logo to the left of its name.
+7. On your main screen now click 'Signing & Capabilities'
+8. In the 'Signing' drop down menu look at 'Team' 
+9. You should see: 'Name (Personal Team)'
+10. Now click on 'General'
+11. Under 'Indentity' change 'Bundle Identifier: Viam-Robotics.point-clouds' to 'Bundle Identifier: Viam-Robotics.point-clouds.<Name that shows up next to (Personal Team)>'
+12. Connect your phone to computer (USB to lightening).
+13. In Xcode select your phone from the list of possible devices the app can run on. This is a drop down menu at the very top of the screen.
+14. Click on the sideways triangle in the upper left hand corner of your Xcode window.
+
+**App Logic**:
+Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/corebluetooth) allows the iphone to act as either a central or peripheral device.
+- Central devices scan for other devices. They access remote devices over a bluetooth low energy link using the GATT protocol.
+- Peripheral devices advertise and wait for connections. They have a local database and methods for accessing its contents.
+All peripheral devices have services and characteristics which describe them.
+A popular example of a peripheral device is a heart rate monitor.
+A service of a heart rate monitor is its heart rate service.
+The characteristics which describe this service the heart rate service includ: heart rate measurement and body sensor location.
+
+This app has the iphone acting as a peripheral.
+
+On start-up the iphone advertises its presence. 
+RPI connects to iphone.
+iPhone is generating point clouds
+~I believe that the type of data that represents a point cloud has to be turned into a service/characteristic
+~save generated point clouds to local database
+RPI is discovers and connects to iPhone
+RPI queries contents of iPhone
+iPhone responds to query requests.
+
+
 
 Below is a description of each file.
 
@@ -22,10 +51,26 @@ Below is a description of each file.
 
 **Renderer:** Logic of how rendering functions are used. Contains Rendender class that houses [ARSession](https://developer.apple.com/documentation/arkit/arsession) which gives us the [ARFrame](https://developer.apple.com/documentation/arkit/arframe).
 
-**ViewController:** Manages UI and background functionality. ViewController is immediately called on by the AppDelegate if the app successfully launches. Calls on MyPeripheralManger to get start bluetooth and then Renderer to begin generating point clouds.
+
+**ViewController:** Manages UI and background functionality. ViewController is on by the AppDelegate if the app successfully launches. Calls on MyPeripheralManger to start bluetooth and then Renderer to begin generating point clouds.
 
 **MyPeripheralManager:** How the iphone behaves as a peripheral. Logic behind advertising, connecting, and responding to requests from a central bluetooth low energy device.
 
+What I am thinking are my next steps:
+1. Fix bug that has iphone advertising for a limited amount of time
+
+
+3. Write swift code that allows phone to recieve connection requests from a Raspberry Pi
+4. Write swift code that identifies the LiDAR camera as a service and the generated point clouds as a characteristic
+5. Write swift code that saves generated point clouds into GATT bus?
+6. Write swift code that responds to RPI data queries
+
+
+What I am thinking in general:
+- a lot of the code in Shaders, ShaderTypes, and Renderer is un-used. Get rid of non-essential code.
+
+
 *Note*: This is not the final version of this document.
-* More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added. 
-* Will write more detailed explanations of how files work together.
+* More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added.
+
+
