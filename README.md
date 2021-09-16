@@ -9,7 +9,7 @@ To run the app:
 3. Immediately below the button you just clicked there should be a row of icons.
 4. Click on the leftmost icon. Icon looks like a folder.
 5. You should now see a drop down menu containing this app's files
-6. There are two values called 'point clouds'. Click on point clouds that has app store logo to the left of its name.
+6. There are two values called 'point clouds'. Click on point clouds that has the app store logo to the left of its name.
 7. On your main screen now click 'Signing & Capabilities'
 8. In the 'Signing' drop down menu look at 'Team' 
 9. You should see: 'Name (Personal Team)'
