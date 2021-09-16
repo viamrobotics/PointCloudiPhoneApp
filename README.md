@@ -10,10 +10,10 @@ To run the app:
 4. Click on the leftmost icon. Icon looks like a folder.
 5. You should now see a drop down menu containing this app's files
 6. There are two values called 'point clouds'. Click on point clouds that has the app store logo to the left of its name.
-7. On your main screen now click 'Signing & Capabilities'
+7. On your main screen, now, click 'Signing & Capabilities'
 8. In the 'Signing' drop down menu look at 'Team' 
 9. You should see: 'Name (Personal Team)'
-10. Now click on 'General'
+10. Click on 'General'
 11. Under 'Indentity' change 'Bundle Identifier: Viam-Robotics.point-clouds' to 'Bundle Identifier: Viam-Robotics.point-clouds.<Name that shows up next to (Personal Team)>'
 12. Connect your phone to computer (USB to lightening).
 13. In Xcode select your phone from the list of possible devices the app can run on. This is a drop down menu at the very top of the screen.
