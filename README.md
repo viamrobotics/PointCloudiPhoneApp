@@ -26,7 +26,7 @@ Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/cor
 All peripheral devices have services and characteristics which describe them.
 A popular example of a peripheral device is a heart rate monitor.
 A service of a heart rate monitor is its heart rate service.
-The characteristics which describe this service the heart rate service includ: heart rate measurement and body sensor location.
+The characteristics which describe this service the heart rate service include: heart rate measurement and body sensor location.
 
 This app has the iphone acting as a peripheral.
 
@@ -52,12 +52,10 @@ Below is a description of each file.
 
 What I am thinking are my next steps:
 1. Fix bug that has iphone advertising for a limited amount of time
-
-
-3. Write swift code that allows phone to recieve connection requests from a Raspberry Pi
-4. Write swift code that identifies the LiDAR camera as a service and the generated point clouds as a characteristic
-5. Write swift code that saves generated point clouds into GATT bus?
-6. Write swift code that responds to RPI data queries
+2. Write swift code that allows phone to recieve connection requests from a Raspberry Pi
+3. Write swift code that identifies the LiDAR camera as a service and the generated point clouds as a characteristic
+4. Write swift code that saves generated point clouds into GATT bus?
+5. Write swift code that responds to RPI data queries
 
 
 What I am thinking in general:
