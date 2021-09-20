@@ -87,14 +87,17 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
 
     //MARK: - Peripheral BlueTooth
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if peripheral.state == .poweredOn {
+        if peripheralManager.state == .poweredOn {
             print("peripheral on")
             let mutableservice : CBMutableService = CBMutableService(type: serviceUUID, primary: true)
             let mutableCharacteristic : CBMutableCharacteristic = CBMutableCharacteristic(type: characteristicUUID, properties: [.write, .read], value: nil, permissions: [CBAttributePermissions.writeable, CBAttributePermissions.readable])
             mutableservice.characteristics = [mutableCharacteristic]
-            peripheral.add(mutableservice)
+            peripheralManager.add(mutableservice)
             print(mutableservice)
-            peripheral.startAdvertising([CBAdvertisementDataLocalNameKey: advertisementDataLocalNameKey])
+            print(" ")
+            print(!peripheralManager.isAdvertising)
+            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID], CBAdvertisementDataLocalNameKey: advertisementDataLocalNameKey])
+            print(peripheralManager.isAdvertising)
         }
     }
 
@@ -104,6 +107,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
             return
         }
         print("Add service succeeded")
+    }
 
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         if let error = error {
@@ -111,9 +115,23 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
             return
         }
         print("Start advertising succeeded")
+        print(error?.localizedDescription ?? "nil")
     }
-
-
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
+        var arr: [UInt8] = [0,0,0,0,0] // example data
+        let value: Data = Data(bytes: &arr, count: arr.count)
+        request.value = value
+        self.peripheralManager.respond(to: request, withResult: .success)
+    }
+    
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        if let request = requests.first {
+            if let value = request.value {
+                let valueBytes: [UInt8] = [UInt8](value)
+                print("received data: \(valueBytes)")
+            }
+        }
     }
 }
 
