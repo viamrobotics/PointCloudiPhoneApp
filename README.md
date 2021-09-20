@@ -22,11 +22,11 @@ To run the app:
 **App Logic**:
 Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/corebluetooth) allows the iphone to act as either a central or peripheral device.
 - Central devices scan for other devices. They access remote devices over a bluetooth low energy link using the GATT protocol.
-- Peripheral devices advertise and wait for connections. They have a local database and methods for accessing its contents.
-All peripheral devices have services and characteristics which describe them.
+- Peripheral devices advertise their presence and wait for connection requests. The infomation within a peripheral device is referenced by the name is its service
+
 A popular example of a peripheral device is a heart rate monitor.
 A service of a heart rate monitor is its heart rate service.
-The characteristics which describe this service the heart rate service include: heart rate measurement and body sensor location.
+The characteristics which describe this service include: heart rate measurement and body sensor location.
 
 This app has the iphone acting as a peripheral.
 
