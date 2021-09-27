@@ -10,24 +10,30 @@ import Metal
 import MetalKit
 import ARKit
 import CoreBluetooth
-import CoreLocation
 
 extension MTKView : RenderDestinationProvider {
 }
-class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPeripheralManagerDelegate{
+class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     var session: ARSession!
     var renderer: Renderer!
 
     var peripheralManager: CBPeripheralManager!
     
-    // static UUID
-    var serviceUUID: CBUUID = CBUUID(string: "0846BFB3-6A8C-48AC-88F5-06D3E8681068")
-    var characteristicUUID: CBUUID = CBUUID(string: "0846BFB3-6A8C-48AC-88F5-06D3E8681068")
+    var transferCharacteristic: CBMutableCharacteristic?
+    let serviceUUID: CBUUID = CBUUID(string: "D6F60427-BF2D-4208-ADEB-267697102667")
+    let characteristicUUID: CBUUID = CBUUID(string: "D6F60427-BF2D-4208-ADEB-267697102667")
     let advertisementDataLocalNameKey : String = "LiDAR Phone"
+    
+    var connectedCentral: CBCentral?
 
 
     override func viewDidLoad() {
+        
+        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        
         super.viewDidLoad()
+        
+        print("CBPeriphalManager instantiated")
 
         // Set the view's delegate
         session = ARSession()
@@ -49,10 +55,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
 
             renderer.drawRectResized(size: view.bounds.size)
         }
-
-        // Do any additional setup after loading the view.
         
-        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        
 
     }
 
@@ -67,14 +71,17 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        // Don't keep advertising going while we're not showing.
+        peripheralManager.stopAdvertising()
+
         super.viewWillDisappear(animated)
+        print("stopped advertising")
 
         // Pause the view's session
         session.pause()
     }
 
     // MARK: - MTKViewDelegate
-
     // Called whenever view changes orientation or layout is changed
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         renderer.drawRectResized(size: size)
@@ -85,53 +92,62 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate, CBPe
         renderer.update()
     }
 
-    //MARK: - Peripheral BlueTooth
+    // MARK: - Private funcs
+    private func setupPeripheral(){
+        
+        //build our service
+        
+        // CBMutableCharacteristic instantiation
+        let transferCharacteristic = CBMutableCharacteristic(type: characteristicUUID, properties: [.notify, .writeWithoutResponse], value: nil, permissions: [.readable, .writeable])
+        
+        // create service from characteristic
+        let transferService = CBMutableService(type: serviceUUID, primary: true)
+        
+        // add characteristic to service
+        transferService.characteristics = [transferCharacteristic]
+        
+        // add it to the peripheral manager
+        peripheralManager.add(transferService)
+        
+        // save the characteristic for later
+        self.transferCharacteristic = transferCharacteristic
+        
+    }
+    private func startad(){
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID]])
+        print("bool if advertising is working: \(peripheralManager.isAdvertising)")
+    }
+}
+// MARK: - Extensions
+extension ViewController: CBPeripheralManagerDelegate{
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-        if peripheralManager.state == .poweredOn {
-            print("peripheral on")
-            let mutableservice : CBMutableService = CBMutableService(type: serviceUUID, primary: true)
-            let mutableCharacteristic : CBMutableCharacteristic = CBMutableCharacteristic(type: characteristicUUID, properties: [.write, .read], value: nil, permissions: [CBAttributePermissions.writeable, CBAttributePermissions.readable])
-            mutableservice.characteristics = [mutableCharacteristic]
-            peripheralManager.add(mutableservice)
-            print(mutableservice)
-            print(" ")
-            print(!peripheralManager.isAdvertising)
-            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID], CBAdvertisementDataLocalNameKey: advertisementDataLocalNameKey])
-            print(peripheralManager.isAdvertising)
+        if peripheral.state == .poweredOn {
+            print("peripheral is on")
+            setupPeripheral()
+            print("setup done")
+        }
+        if peripheral.state == .poweredOff {
+            peripheral.stopAdvertising()
+            print("off")
         }
     }
-
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
          if let error = error {
-            print("Add service failed: \(error.localizedDescription)")
+             print("Add service failed: \(error.localizedDescription)")
             return
         }
         print("Add service succeeded")
+        startad()
+        print("starting to advertise")
     }
-
+    
     func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         if let error = error {
             print("Start advertising failed: \(error.localizedDescription)")
             return
         }
         print("Start advertising succeeded")
-        print(error?.localizedDescription ?? "nil")
-    }
-    
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
-        var arr: [UInt8] = [0,0,0,0,0] // example data
-        let value: Data = Data(bytes: &arr, count: arr.count)
-        request.value = value
-        self.peripheralManager.respond(to: request, withResult: .success)
-    }
-    
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        if let request = requests.first {
-            if let value = request.value {
-                let valueBytes: [UInt8] = [UInt8](value)
-                print("received data: \(valueBytes)")
-            }
-        }
+        print("bool if advertising is working: \(peripheralManager.isAdvertising)")
     }
 }
 
