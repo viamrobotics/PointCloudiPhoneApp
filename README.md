@@ -64,4 +64,5 @@ What I am thinking are my next steps:
 3. run: scan on
 4. Look for the MAC address next to 'LiDAR Phone pc'
 5. run: connect <MAC address>
+
 NOTE: code to query contents of phone on app side is in works
