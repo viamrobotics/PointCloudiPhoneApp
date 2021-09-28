@@ -54,11 +54,14 @@ What I am thinking are my next steps:
 5. Write swift code that responds to RPI data queries
 
 
-What I am thinking in general:
-- a lot of the code in Shaders, ShaderTypes, and Renderer is un-used. Get rid of non-essential code.
-
-
-*Note*: This is not the final version of this document.
 * More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added.
 
-
+**Connecting to RPI**
+1. run:
+1.1 sudo hciconfig hci0 piscan
+1.2 sudo bluetoothctl
+2. run app on phone
+3. run: scan on
+4. Look for the MAC address next to 'LiDAR Phone pc'
+5. run: connect <MAC address>
+NOTE: code to query contents of phone on app side is in works
