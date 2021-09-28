@@ -9,6 +9,7 @@ import Foundation
 import Metal
 import MetalKit
 import ARKit
+import CoreBluetooth
 
 protocol RenderDestinationProvider {
     var currentRenderPassDescriptor: MTLRenderPassDescriptor? { get }
@@ -42,6 +43,13 @@ class Renderer {
     let device: MTLDevice
     let inFlightSemaphore = DispatchSemaphore(value: kMaxBuffersInFlight)
     var renderDestination: RenderDestinationProvider
+    
+    //Bluetooth objects
+    var pointcloudCharacteristic: CBMutableCharacteristic?
+    let pcServiceUUID: CBUUID = CBUUID(string: "3607C609-0FB6-4B52-8D4B-125025EA4163")
+    let pcCharacteristicUUID: CBUUID = CBUUID(string: "3607C609-0FB6-4B52-8D4B-125025EA4163")
+    var pcDataToSend = Data()
+    var peripheralManager: CBPeripheralManager!
     
     // Metal objects
     var commandQueue: MTLCommandQueue!
@@ -344,7 +352,10 @@ class Renderer {
         guard let currentFrame = session.currentFrame else {
             return
         }
-        printedpointclouds(frame: currentFrame)
+        
+        //printedpointclouds(frame: currentFrame)
+        //bluetoothchar(frame: currentFrame)
+        
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
@@ -356,20 +367,25 @@ class Renderer {
         }
     }
     
+    func bluetoothchar(frame: ARFrame){
+        
+        // have to add function that converts ARFrame into type data
+        // CBMutableCharacteristic instantiation
+        let transferCharacteristic = CBMutableCharacteristic(type: pcCharacteristicUUID, properties: [.notify, .writeWithoutResponse], value: nil, permissions: [.readable, .writeable])
+        
+        // create service from characteristic
+        let transferService = CBMutableService(type: pcServiceUUID, primary: true)
+        
+        // add characteristic to service
+        transferService.characteristics = [transferCharacteristic]
+        
+        // add it to the peripheral manager
+        peripheralManager.add(transferService)
+    }
+    
     
     func printedpointclouds(frame: ARFrame){
-        if let pname = frame.rawFeaturePoints{
-            if pname == nil {
-                print("fault")
-                
-            }
-            else {
-                print(pname.points)
-                print(" ")
-                print(" ")
-                
-            }
-        }
+        print(frame.rawFeaturePoints?.points ?? "default")
     }
     
     func updateSharedUniforms(frame: ARFrame) {
