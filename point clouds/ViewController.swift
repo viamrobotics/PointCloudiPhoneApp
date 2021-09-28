@@ -22,7 +22,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     var transferCharacteristic: CBMutableCharacteristic?
     let serviceUUID: CBUUID = CBUUID(string: "D6F60427-BF2D-4208-ADEB-267697102667")
     let characteristicUUID: CBUUID = CBUUID(string: "D6F60427-BF2D-4208-ADEB-267697102667")
-    let advertisementDataLocalNameKey : String = "LiDAR Phone"
+    let CBAdvertisementDataIsConnectable: String = "1"
+    let advertisementDataLocalNameKey : String = "LiDAR Phone pc"
     
     var connectedCentral: CBCentral?
 
