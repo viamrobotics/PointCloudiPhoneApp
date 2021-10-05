@@ -47,12 +47,6 @@ Below is a description of each file.
 
 **ViewController:** Manages UI and background functionality. ViewController is called on by the AppDelegate if the app successfully launches. The conents of the file manage the devices bluetooth behavior and calls to **Renderer**.
 
-What I am thinking are my next steps:
-2. Write swift code that allows phone to recieve connection requests from a Raspberry Pi
-3. Write swift code that identifies the LiDAR camera as a service and the generated point clouds as a characteristic
-4. Write swift code that saves generated point clouds into GATT bus?
-5. Write swift code that responds to RPI data queries
-
 
 * More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added.
 
@@ -62,7 +56,15 @@ What I am thinking are my next steps:
 1.2 sudo bluetoothctl
 2. run app on phone
 3. run: scan on
-4. Look for the MAC address next to 'LiDAR Phone pc'
+4. Look for the MAC address next to 'LiDAR Phone'
 5. run: connect <MAC address>
-
-NOTE: code to query contents of phone on app side is in works
+6. on phone confirm connection request
+7. run:
+  menu gatt
+  list-attributes <MAC address>
+8. find the characteristic (easily find with Crt+F "D6F60427")
+9. copy line above the UUID
+  e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
+10. run: select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>
+11. run: notify on
+  note: running 'read' will result in error
