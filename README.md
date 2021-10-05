@@ -64,4 +64,6 @@ Below is a description of each file.
 10. run: 'select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>'
 11. run: 'notify on'
   
+  you shouhld now be able to see a truncated point cloud streamed into the RPI
+  
   NOTE: running 'read' will result in error
