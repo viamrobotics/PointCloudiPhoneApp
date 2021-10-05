@@ -241,7 +241,7 @@ extension ViewController: CBPeripheralManagerDelegate{
         os_log("central subscribed to characteristic: \(characteristic)")
         // Get the data
         dataToSend = renderer.pointcloud()
-        // ~ 1.5K+ bytes
+        // ~ 15K+ bytes
 
         // Reset the index
         sendDataIndex = 0
