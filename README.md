@@ -51,20 +51,16 @@ Below is a description of each file.
 * More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added.
 
 **Connecting to RPI**
-1. run:
-1.1 sudo hciconfig hci0 piscan
-1.2 sudo bluetoothctl
+1. run: 'sudo hciconfig hci0 piscan" & 'sudo bluetoothctl'
 2. run app on phone
-3. run: scan on
+3. run: 'scan on'
 4. Look for the MAC address next to 'LiDAR Phone'
-5. run: connect <MAC address>
+5. run: 'connect <MAC address>'
 6. on phone confirm connection request
-7. run:
-  menu gatt
-  list-attributes <MAC address>
+7. run: 'menu gatt' & 'list-attributes <MAC address>'
 8. find the characteristic (easily find with Crt+F "D6F60427")
 9. copy line above the UUID
   e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
-10. run: select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>
-11. run: notify on
-  note: running 'read' will result in error
+10. run: 'select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>'
+11. run: 'notify on'
+  NOTE: running 'read' will result in error
