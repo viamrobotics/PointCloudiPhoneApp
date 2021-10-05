@@ -20,6 +20,26 @@ To run the app:
 14. Click on the sideways triangle in the upper left hand corner of your Xcode window.
 
 
+**Connecting to RPI**
+1. run: 'sudo hciconfig hci0 piscan" & 'sudo bluetoothctl'
+2. run app on phone
+3. run: 'scan on'
+4. Look for the MAC address next to 'LiDAR Phone'
+5. run: 'connect <MAC address>'
+6. on phone confirm connection request
+7. run: 'menu gatt' & 'list-attributes <MAC address>'
+8. find the characteristic (easily find with Crt+F "D6F60427")
+9. copy line above the UUID
+- e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
+- It is very important that the line you copy end with 'service0039/char003a' do not copy the one that ends with 'service0039'
+10. run: 'select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>'
+11. run: 'notify on'
+  
+  you shouhld now be able to see a truncated point cloud streamed into the RPI
+  
+  NOTE: running 'read' will result in error
+
+
 **Core Bluetooth:**
 Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/corebluetooth) allows the iphone to act as either a central or peripheral device.
 - Central devices scan for other devices. They access remote devices over a bluetooth low energy link using the GATT protocol.
@@ -49,22 +69,3 @@ Below is a description of each file.
 
 
 * More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/) will be added.
-
-**Connecting to RPI**
-1. run: 'sudo hciconfig hci0 piscan" & 'sudo bluetoothctl'
-2. run app on phone
-3. run: 'scan on'
-4. Look for the MAC address next to 'LiDAR Phone'
-5. run: 'connect <MAC address>'
-6. on phone confirm connection request
-7. run: 'menu gatt' & 'list-attributes <MAC address>'
-8. find the characteristic (easily find with Crt+F "D6F60427")
-9. copy line above the UUID
-- e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
-- It is very important that the line you copy end with 'service0039/char003a' do not copy the one that ends with 'service0039'
-10. run: 'select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>'
-11. run: 'notify on'
-  
-  you shouhld now be able to see a truncated point cloud streamed into the RPI
-  
-  NOTE: running 'read' will result in error
