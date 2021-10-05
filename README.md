@@ -60,10 +60,8 @@ Below is a description of each file.
 7. run: 'menu gatt' & 'list-attributes <MAC address>'
 8. find the characteristic (easily find with Crt+F "D6F60427")
 9. copy line above the UUID
-  
-  e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
-  
-  It is very important that the line you copy end with 'service0039/char003a' do not copy the one that ends with 'service0039'
+- e.g. /org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a
+- It is very important that the line you copy end with 'service0039/char003a' do not copy the one that ends with 'service0039'
 10. run: 'select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>'
 11. run: 'notify on'
   
