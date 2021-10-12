@@ -19,6 +19,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     // for ARKIT
     var session: ARSession!
     var renderer: Renderer!
+    var HTTPserver: Server!
 
     // for bluetooth
     var peripheralManager: CBPeripheralManager!
@@ -33,12 +34,17 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
 
     override func viewDidLoad() {
+        
+        //start server
+        let _ = Server()
+        
+        
         //instantiate peripheralManager
-        peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+        //peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
 
         super.viewDidLoad()
 
-        os_log("CBPeriphalManager instantiated")
+        //os_log("CBPeriphalManager instantiated")
 
         // Set the view's delegate
         session = ARSession()
@@ -73,13 +79,18 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
     override func viewWillDisappear(_ animated: Bool) {
         // Don't keep advertising going while we're not showing.
-        peripheralManager.stopAdvertising()
+        //peripheralManager.stopAdvertising()
+        
+        //stop the server
+        self.HTTPserver.stop()
 
         super.viewWillDisappear(animated)
         os_log("stopped advertising")
 
         // Pause the view's session
         session.pause()
+        
+
     }
 
     // MARK: - MTKViewDelegate
