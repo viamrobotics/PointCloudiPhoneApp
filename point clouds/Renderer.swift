@@ -359,6 +359,19 @@ class Renderer {
         }
     }
     
+    func serverpointcloud() -> Data? {
+        
+        guard let currentFrame = session.currentFrame else {
+            return "exit".data(using: .utf8)!
+        }
+        let t = currentFrame.rawFeaturePoints?.points.description
+        let nt = t?.replacingOccurrences(of: "SIMD3<Float>", with: "", options: .literal, range: nil)
+        let nnt = nt?.replacingOccurrences(of: "Optional(", with: "", options: .literal, range: nil)
+        let nnnt = nnt?.replacingOccurrences(of: "[", with: "", options: .literal, range: nil)
+        let nnnnt = nnnt?.replacingOccurrences(of: "]", with: "", options: .literal, range: nil)
+        let send = nnnnt?.data(using: .utf8)
+        return send
+    }
     
     func pointcloud() -> Data {
         
