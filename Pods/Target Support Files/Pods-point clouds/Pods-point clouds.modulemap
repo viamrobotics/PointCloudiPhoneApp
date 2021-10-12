@@ -1,0 +1,6 @@
+framework module Pods_point_clouds {
+  umbrella header "Pods-point clouds-umbrella.h"
+
+  export *
+  module * { export * }
+}
