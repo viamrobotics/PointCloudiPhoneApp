@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1300"
+   LastUpgradeVersion = "1240"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ABC1E17DE15BC0BDD349D06F0ADAC904"
-               BuildableName = "Pods_point_clouds.framework"
-               BlueprintName = "Pods-point clouds"
+               BlueprintIdentifier = "CA65059E808391E31616CB3E015A6B24"
+               BuildableName = "Swifter.framework"
+               BlueprintName = "Swifter"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

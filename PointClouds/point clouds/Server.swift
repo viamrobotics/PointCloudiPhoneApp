@@ -9,12 +9,21 @@
 import Foundation
 import Swifter
 import OSLog
+import SwiftUI
 
 
 class Server {
     var renderer: Renderer!
     var host = ""
-    var port = 0
+    var port: String{
+        willSet{
+            // When port changes, need to stop server if it is on
+            if on {
+                stop()
+            }
+        }
+    }
+    //var port = 0
     var on = false
     let server = HttpServer()
     let encoder = JSONEncoder()
@@ -24,7 +33,7 @@ class Server {
     var wasOn = false
     
     init() {
-        self.port = 3000
+        self.port = String(3000)
         self.refreshRateHz = 50
         initHandlers()
         os_log("initialized server")
@@ -34,7 +43,7 @@ class Server {
     
     // Turn server off when the app enters the background.
     func enteredBackground() {
-        self.server.stop()
+        stop()
     }
     
     // Turn server back on when the app enters the foreground if it wasOn when it was backgrounded.
@@ -43,11 +52,10 @@ class Server {
     }
     
     func initHandlers() {
-        server["/hello"] = { request in
-            os_log("1")
-            return HttpResponse.ok(.text("hello!"))
+        server["/hello"] = { _ in
+            HttpResponse.ok(.text("hello!"))
         }
-        server["/measurement"] = { request in
+        server["/measurement"] = { _ in
             if let meas = self.renderer.serverpointcloud() {
             //if let meas = self.getLatestMeasurement() {
                 os_log("2")
@@ -58,30 +66,28 @@ class Server {
             }
         }
         server["/measurementStream"] = { _ in
-            let newLine = "\n".data(using: .utf8)
-            let ms = 1000
-            os_log("4")
-            return HttpResponse.raw(200, "OK", nil, { writer in
-                var meas:Data?
-                var start = Date().millisecondsSince1970
-                var end = Date().millisecondsSince1970
-                // Writes stream of measurement data at refreshRateHz.
-                while self.on {
-                    try autoreleasepool {
-                        start = Date().millisecondsSince1970
-                        meas = self.renderer.serverpointcloud()
-                        //meas = self.getLatestMeasurement()
-                        if meas != nil {
-                            try writer.write(meas!)
-                            try writer.write(newLine!)
-                        } else {
-                            print("failed to get latest measurement")
+                    let newLine = "\n".data(using: .utf8)
+                    let ms = 1000
+                    return HttpResponse.raw(200, "OK", nil) { writer in
+                        var meas: Data?
+                        var start = Date().millisecondsSince1970
+                        var end = Date().millisecondsSince1970
+                        // Writes stream of measurement data at refreshRateHz.
+                        while self.on {
+                            try autoreleasepool {
+                                start = Date().millisecondsSince1970
+                                meas = self.renderer.serverpointcloud()
+                                if meas != nil {
+                                    try writer.write(meas!)
+                                    try writer.write(newLine!)
+                                } else {
+                                    print("failed to get latest measurement")
+                                }
+                                end = Date().millisecondsSince1970
+                                usleep(useconds_t(max(0, (Int64(1000 / self.refreshRateHz) - (end - start)) * Int64(ms))))
+                            }
                         }
-                        end = Date().millisecondsSince1970
-                        usleep(useconds_t(max(0, (Int64(1000/self.refreshRateHz) - (end-start))*Int64(ms))))
                     }
-                }
-            })
         }
     }
     
@@ -90,14 +96,13 @@ class Server {
         do {
             // Default priority is background, which significantly impacts the performance of usleep. See
             // https://stackoverflow.com/questions/49620284/bad-precision-of-usleep-when-is-executed-in-background-thread-in-swift
-            try self.server.start(UInt16(self.port), priority: DispatchQoS.QoSClass.userInteractive)
-            os_log("server started")
-            self.on = true
+            try server.start(UInt16(Int(port)!), priority: DispatchQoS.QoSClass.userInteractive)
+            on = true
             if let addr = getWiFiAddress() {
-                print(addr)
-                self.host = addr
+                os_log("\(addr)")
+                host = addr
             } else {
-                self.host = "No WiFi address"
+                host = "No WiFi address"
             }
         } catch {
             print("failed to start server")
@@ -106,17 +111,18 @@ class Server {
     
     // Stops server.
     func stop() {
-        self.server.stop()
-        self.host = ""
-        self.on = false
+        server.stop()
+        host = ""
+        on = false
+        os_log("server off")
     }
     
     // Return IP address of WiFi interface (en0) as a String
     func getWiFiAddress() -> String? {
-        var address : String?
+        var address: String?
 
         // Get list of all interfaces on the local machine:
-        var ifaddr : UnsafeMutablePointer<ifaddrs>?
+        var ifaddr: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&ifaddr) == 0 else { return nil }
         guard let firstAddr = ifaddr else { return nil }
 
@@ -127,11 +133,9 @@ class Server {
             // Check for IPv4 or IPv6 interface:
             let addrFamily = interface.ifa_addr.pointee.sa_family
             if addrFamily == UInt8(AF_INET) || addrFamily == UInt8(AF_INET6) {
-
                 // Check interface name:
                 let name = String(cString: interface.ifa_name)
-                if  name == "en0" {
-
+                if name == "en0" {
                     // Convert interface address to a human readable string:
                     var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
                     getnameinfo(interface.ifa_addr, socklen_t(interface.ifa_addr.pointee.sa_len),
@@ -157,4 +161,3 @@ extension Date {
         self = Date(timeIntervalSince1970: TimeInterval(milliseconds / 1000))
     }
 }
-

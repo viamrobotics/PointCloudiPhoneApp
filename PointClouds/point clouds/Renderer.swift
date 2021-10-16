@@ -351,6 +351,7 @@ class Renderer {
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
+        //rbgvals(frame: currentFrame)
 
         if viewportSizeDidChange {
             viewportSizeDidChange = false
@@ -396,6 +397,100 @@ class Renderer {
             print(" ")
             return send!
             }
+    }
+    
+    func rbgvals(frame: ARFrame){
+        print("camera - type: ARCamera")
+        print(frame.camera)
+        print("----")
+        print("capturedImage")
+        print(frame.capturedImage)
+        print("----")
+        print("timestamp")
+        print(frame.timestamp)
+        print("----")
+        print("cameraGrainIntensity")
+        print(frame.cameraGrainIntensity)
+        print("----")
+        print("cameraGrainTexture")
+        print(frame.cameraGrainTexture ?? "nil")
+        print("----")
+        print("lightEstimate")
+        print(frame.lightEstimate ?? "nil")
+        print("----")
+        print("rawFeaturePoints")
+        print(frame.rawFeaturePoints ?? "nil")
+        print("----")
+        print("rawFeaturePoints?.points.description")
+        print(frame.rawFeaturePoints?.points.description ?? "nil")
+        print("----")
+        print("rawFeaturePoints?.identifiers.description")
+        print(frame.rawFeaturePoints?.identifiers.description ?? "nil")
+        print("----")
+        print("capturedDepthData")
+        print(frame.capturedDepthData ?? "nil")
+        print("----")
+        print("capturedDepthDataTimestamp")
+        print(frame.capturedDepthDataTimestamp)
+        print("----")
+        print("sceneDepth")
+        print(frame.sceneDepth ?? "nil")
+        print("----")
+        print("smoothedSceneDepth")
+        print(frame.smoothedSceneDepth ?? "nil")
+        print("----")
+        print("anchors")
+        print(frame.anchors)
+        print(" ")
+        print(" ")
+        print("----------------------------------------")
+        print(" ")
+        print(" ")
+//        capturedImage
+//        <CVPixelBuffer 0x286710780 width=1920 height=1440 pixelFormat=420f iosurface=0x2813a2640 planes=2>
+//        <Plane 0 width=1920 height=1440 bytesPerRow=1920>
+//        <Plane 1 width=960 height=720 bytesPerRow=1920>
+//        <attributes={
+//            PixelFormatDescription =     {
+//                BitsPerComponent = 8;
+//                ComponentRange = FullRange;
+//                ContainsAlpha = 0;
+//                ContainsGrayscale = 0;
+//                ContainsRGB = 0;
+//                ContainsYCbCr = 1;
+//                FillExtendedPixelsCallback = {length = 24, bytes = 0x000000000000000054bca288010000000000000000000000};
+//                IOSurfaceCoreAnimationCompatibility = 1;
+//                IOSurfaceOpenGLESFBOCompatibility = 1;
+//                IOSurfaceOpenGLESTextureCompatibility = 1;
+//                OpenGLESCompatibility = 1;
+//                PixelFormat = 875704422;
+//                Planes =         (
+//                                {
+//                        BitsPerBlock = 8;
+//                        BlackBlock = {length = 1, bytes = 0x00};
+//                    },
+//                                {
+//                        BitsPerBlock = 16;
+//                        BlackBlock = {length = 2, bytes = 0x8080};
+//                        HorizontalSubsampling = 2;
+//                        VerticalSubsampling = 2;
+//                    }
+//                );
+//            };
+//        } propagatedAttachments={
+//            CVImageBufferColorPrimaries = "ITU_R_709_2";
+//            CVImageBufferTransferFunction = "ITU_R_709_2";
+//            CVImageBufferYCbCrMatrix = "ITU_R_601_4";
+//            MetadataDictionary =     {
+//                ExposureTime = "0.005725";
+//                SensorID = 1283;
+//            };
+//        } nonPropagatedAttachments={
+//        }>
+//
+//        capturedDepthData
+//        nil
+//        --------------------
     }
 
     func updateSharedUniforms(frame: ARFrame) {
