@@ -60,4 +60,4 @@ This app has the iphone acting as a peripheral.
 4. RPI queries services and characteristics of iPhone.
 5. iPhone responds to query requests.
 
-* More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/).
+More on [CoreBluetooth](https://developer.apple.com/documentation/corebluetooth) and [ARKit](https://developer.apple.com/documentation/arkit/).
