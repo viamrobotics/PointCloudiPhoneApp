@@ -11,6 +11,11 @@ import Swifter
 import OSLog
 import SwiftUI
 
+struct Measurement: Codable {
+    //point cloud data
+    var poclo: Optional<Array<SIMD3<Float>>>?
+    var rbg: Optional<Array<SIMD3<Float>>>?
+}
 
 class Server {
     var renderer: Renderer!
@@ -56,7 +61,7 @@ class Server {
             HttpResponse.ok(.text("hello!"))
         }
         server["/measurement"] = { _ in
-            if let meas = self.renderer.serverpointcloud() {
+            if let meas = self.getLatestMeasurement() {
             //if let meas = self.getLatestMeasurement() {
                 os_log("2")
                 return HttpResponse.ok(.data(meas, contentType: "application/json"))
@@ -76,7 +81,7 @@ class Server {
                         while self.on {
                             try autoreleasepool {
                                 start = Date().millisecondsSince1970
-                                meas = self.renderer.serverpointcloud()
+                                meas = self.getLatestMeasurement()
                                 if meas != nil {
                                     try writer.write(meas!)
                                     try writer.write(newLine!)
@@ -115,6 +120,17 @@ class Server {
         host = ""
         on = false
         os_log("server off")
+    }
+    
+    func getLatestMeasurement() -> Data? {
+        var rawMeas = Measurement()
+        rawMeas.poclo = renderer.r3points()
+        do {
+            let data = try encoder.encode(rawMeas)
+            return data
+        } catch {
+            return nil
+        }
     }
     
     // Return IP address of WiFi interface (en0) as a String
