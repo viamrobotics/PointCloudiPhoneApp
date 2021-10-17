@@ -25,7 +25,8 @@ Open the `point clouds.xcworkspace` file.
 
 
 # Bluetooth
-** Connecting to RPI**
+
+**Connecting to RPI**
 1. run: `sudo hciconfig hci0 piscan" & 'sudo bluetoothctl`
 2. run app on phone
 3. run: `scan on`
