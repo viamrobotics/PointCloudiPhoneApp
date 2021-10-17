@@ -18,6 +18,7 @@ After installing CocoaPods, we need to download all required pods.
 Go to the directory containing `Podfile`.
 If you are using an ARM based Mac, you need to run the command in the x86 terminal with `arch -x86_64 pod install`.
 Otherwise, run`pod install`.
+
 Note: If you are also using the [SensorExporter](https://github.com/viamrobotics/SensorExporter) and it is your first time you must also do the same procedure.
 
 Open the `point clouds.xcworkspace` file.
