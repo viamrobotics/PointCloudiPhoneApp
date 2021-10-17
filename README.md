@@ -52,6 +52,7 @@ The characteristics which describe this service include: heart rate measurement 
 With respect to us, a service of a iPhone is its camera service, and the characteristics which describe this service include: RBG pixel buffer for each frame, point cloud data, etc .. 
 
 **Bluetooth - App Logic**
+
 This app has the iphone acting as a peripheral.
 1. On start-up the iphone advertises its presence.
 2. A RPI scans for local bluetooth low energy devices and connects to the phone.
