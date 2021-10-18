@@ -36,7 +36,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     override func viewDidLoad() {
         
         //start server
-        let _ = Server()
+        let _ = Server(refreshRateHz: 50, port: 3000)
         
         
         //instantiate peripheralManager
@@ -104,7 +104,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
         renderer.update()
     }
 
-    // MARK: - Private funcs
+    // MARK: - Private funcs for Bluetooth
+    
 
     // sending data when appropriate
     static var sendingEOM = false
