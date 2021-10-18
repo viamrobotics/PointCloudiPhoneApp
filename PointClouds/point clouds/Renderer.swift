@@ -358,7 +358,6 @@ class Renderer {
             updateImagePlane(frame: currentFrame)
         }
     }
-//    Optional([SIMD3<Float>(0.5565652, -0.14972232, -0.07973411), SIMD3<Float>(0.32186693, -0.10044756, -0.04646926), SIMD3<Float>(0.34030765, 0.015454888, -0.2599886)
     func r3points() -> Optional<Array<SIMD3<Float>>> {
         guard let currentFrame = session.currentFrame else {
             return Optional([SIMD3<Float>(0.1, -0.11, -0.111), SIMD3<Float>(0.2, -0.22, -0.222), SIMD3<Float>(0.3, 0.33, -0.333)])
