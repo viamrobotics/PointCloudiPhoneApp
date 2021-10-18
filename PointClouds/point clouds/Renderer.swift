@@ -9,7 +9,6 @@ import Foundation
 import Metal
 import MetalKit
 import ARKit
-import CoreBluetooth
 import OSLog
 
 protocol RenderDestinationProvider {
@@ -408,8 +407,7 @@ class Renderer {
     
     func rbgvals(frame: ARFrame){
         
-        print(frame.rawFeaturePoints?.points)
-        
+        print(frame.rawFeaturePoints?.points ?? "nil")
 //        print("camera - type: ARCamera")
 //        print(frame.camera)
 //        print("----")
