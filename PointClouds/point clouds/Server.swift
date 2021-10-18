@@ -34,18 +34,17 @@ class Server {
     let encoder = JSONEncoder()
     // The rate at which the server will send new measurement values on measurementStream.
     var refreshRateHz:Int
-    // wasOn records whether or not the server wasOn when the app was backgrounded.
-    var wasOn = false
     
-    init() {
-        self.port = String(3000)
-        self.refreshRateHz = 50
+    init(refreshRateHz: Int = 50, port: Int = 3000) {
+        self.port = String(port)
+        self.refreshRateHz = refreshRateHz
         initHandlers()
-        os_log("initialized server")
+        //initObservers()
+        os_log("Started server")
         start()
-
+        
     }
-    
+        
     // Turn server off when the app enters the background.
     func enteredBackground() {
         stop()
@@ -62,7 +61,6 @@ class Server {
         }
         server["/measurement"] = { _ in
             if let meas = self.getLatestMeasurement() {
-            //if let meas = self.getLatestMeasurement() {
                 os_log("2")
                 return HttpResponse.ok(.data(meas, contentType: "application/json"))
             } else {
@@ -96,6 +94,11 @@ class Server {
         }
     }
     
+//    func initObservers() {
+//        NotificationCenter.default.addObserver(self, selector: #selector(enteredBackground), name: .enteredBackground, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(enteredForeground), name: .enteredForeground, object: nil)
+//    }
+    
     // Starts server on self.port.
     func start() {
         do {
@@ -104,7 +107,7 @@ class Server {
             try server.start(UInt16(Int(port)!), priority: DispatchQoS.QoSClass.userInteractive)
             on = true
             if let addr = getWiFiAddress() {
-                os_log("\(addr)")
+                os_log("Our IP address: \(addr)")
                 host = addr
             } else {
                 host = "No WiFi address"
