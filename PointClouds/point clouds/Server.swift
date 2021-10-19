@@ -11,9 +11,40 @@ import Swifter
 import OSLog
 import SwiftUI
 
+
+// based off core/pointcloud/pointcloud.go
 struct Measurement: Codable {
-    //point cloud data
+    // Size returns the number of points in the cloud.
+    var Size: Int?
+
+    // HasColor returns whether or not the cloud consists of points with color.
+    var HasColor: Bool?
+
+    // HasValue returns whether or not the cloud consists of points with user data value.
+    var HasValue: Bool?
+
+    // MinX returns the minimum x coordinate of all points in the cloud.
+    var MinX: Float64?
+
+    // MaxY returns the maximum y coordinate of all points in the cloud.
+    var MaxX: Float64?
+
+    // MinY returns the minimum y coordinate of all points in the cloud.
+    var MinY: Float64?
+
+    // MaxY returns the maximum y coordinate of all points in the cloud.
+    var MaxY: Float64?
+
+    // MinZ returns the minimum z coordinate of all points in the cloud.
+    var MinZ: Float64?
+
+    // MaxZ returns the maximum z coordinate of all points in the cloud.
+    var MaxZ: Float64?
+    
+    // Point cloud data
     var poclo: Optional<Array<SIMD3<Float>>>?
+    
+    // RBG data
     var rbg: Optional<Array<SIMD3<Float>>>?
 }
 
@@ -35,7 +66,7 @@ class Server {
     // The rate at which the server will send new measurement values on measurementStream.
     var refreshRateHz:Int
     
-    init(refreshRateHz: Int = 50, port: Int = 3000) {
+    init(refreshRateHz: Int, port: Int) {
         self.port = String(port)
         self.refreshRateHz = refreshRateHz
         initHandlers()
