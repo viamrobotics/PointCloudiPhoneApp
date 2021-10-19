@@ -406,7 +406,7 @@ class Renderer {
     
     func rbgvals(frame: ARFrame){
         
-        print(frame.rawFeaturePoints?.points ?? "nil")
+        //print(frame.rawFeaturePoints?.points ?? "nil")
 //        print("camera - type: ARCamera")
 //        print(frame.camera)
 //        print("----")
@@ -554,6 +554,7 @@ class Renderer {
     func updateCapturedImageTextures(frame: ARFrame) {
         // Create two textures (Y and CbCr) from the provided frame's captured image
         let pixelBuffer = frame.capturedImage
+        //print(frame.capturedImage.attachments.self)
 
         if (CVPixelBufferGetPlaneCount(pixelBuffer) < 2) {
             return
@@ -573,7 +574,7 @@ class Renderer {
         if status != kCVReturnSuccess {
             texture = nil
         }
-
+        
         return texture
     }
 
