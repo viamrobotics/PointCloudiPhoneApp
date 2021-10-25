@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
 	"io"
 	"net/http"
 	"path"
@@ -17,8 +19,12 @@ import (
 
 	"go.viam.com/core/camera"
 	"go.viam.com/core/config"
+	"go.viam.com/core/pointcloud"
 	"go.viam.com/core/registry"
+	"go.viam.com/core/rimage"
 	"go.viam.com/core/robot"
+
+	// "go.viam.com/core/spatialmath"
 	"go.viam.com/utils"
 
 	"github.com/edaniels/golog"
@@ -34,7 +40,7 @@ type Measurement struct {
 type IPhone struct {
 	Config      *Config       // The config struct containing the info necessary to determine what iPhone to connect to.
 	readCloser  io.ReadCloser // The underlying response stream from the iPhone.
-	reader      *bufio.Reader // Read connection to iPhone to pull sensor data from.
+	reader      *bufio.Reader // Read connection to iPhone to pull lidar data from.
 	log         golog.Logger
 	mut         sync.Mutex   // Mutex to ensure only one goroutine or thread is reading from reader at a time.
 	measurement atomic.Value // The latest measurement value read from reader.
@@ -46,13 +52,13 @@ type IPhone struct {
 
 // Config is a struct used to configure and construct an IPhone using IPhone.New().
 type Config struct {
-	Host      string // The host name of the iPhone being connected to.
-	Port      int    // The port to connect to.
-	isAligned bool   // are color and depth image already aligned
+	Host string // The host name of the iPhone being connected to.
+	Port int    // The port to connect to.
+	// isAligned bool   // are color and depth image already aligned
 }
 
 const (
-	DefaultPath      = "/hello"
+	DefaultPath      = "/measurementStream"
 	defaultTimeoutMs = 1000
 	model            = "iphone"
 )
@@ -61,18 +67,13 @@ const (
 func init() {
 	registry.RegisterCamera("iPhoneLiDAR", registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
-			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port, isAligned: c.isAligned}, logger)
-			if err != nil {
-				return nil, err
-			}
-			return &camera.ImageSource{iCam}, nil
+			return New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
+			// iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// return &camera.ImageSource{iCam}, nil
 		}})
-}
-
-func (ip *IPhone) Close() error {
-	ip.cancelFn()
-	ip.activeBackgroundWorkers.Wait()
-	return ip.readCloser.Close()
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
@@ -187,4 +188,23 @@ func (ip *IPhone) readNextMeasurement(ctx context.Context) (*Measurement, error)
 	case <-ctx.Done():
 		return nil, errors.New("timed out waiting for iphone measurement")
 	}
+}
+
+// Next always returns the same image with a red dot in the center.
+func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
+	img := image.NewNRGBA(image.Rect(0, 0, 1024, 1024))
+	img.Set(16, 16, rimage.Red)
+	return img, func() {}, nil
+}
+
+// NextPointCloud always returns a pointcloud with a single pixel
+func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
+	pc := pointcloud.New()
+	return pc, pc.Set(pointcloud.NewColoredPoint(16, 16, 16, color.NRGBA{255, 0, 0, 255}))
+}
+
+func (ip *IPhone) Close() error {
+	ip.cancelFn()
+	ip.activeBackgroundWorkers.Wait()
+	return ip.readCloser.Close()
 }
