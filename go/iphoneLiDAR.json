@@ -1,0 +1,13 @@
+{
+  "components" : [
+    { "name" : "iPhoneLiDAR",
+      "type" : "camera",
+      "model": "iPhoneLiDAR",
+      "host" : "192.168.1.95",
+      "port" : 3000,
+      "attributes" : {
+        "isAligned" : false
+      }
+    }
+  ]
+}
