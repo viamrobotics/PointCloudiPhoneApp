@@ -1,5 +1,5 @@
-// Package iPhoneLiDAR provides a command for viewing the output of iPhone's LiDAR camera
-package iphonelidar
+// Package iphonelidar provides a command for viewing the output of iPhone's LiDAR camera
+package iPhoneLiDAR
 
 import (
 	"bufio"
@@ -120,11 +120,11 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 				return
 			default:
 			}
-			pcReading, err := ip.readNextMeasurement(ip.cancelCtx)
+			CamReading, err := ip.readNextMeasurement(ip.cancelCtx)
 			if err != nil {
 				logger.Debugw("error reading iphone data", "error", err)
 			} else {
-				ip.measurement.Store(*pcReading)
+				ip.measurement.Store(*CamReading)
 			}
 		}
 	})
