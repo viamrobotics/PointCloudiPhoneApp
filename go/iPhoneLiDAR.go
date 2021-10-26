@@ -1,5 +1,5 @@
 // Package iPhoneLiDAR provides a command for viewing the output of iPhone's LiDAR camera
-package iPhoneLiDAR
+package iphonelidar
 
 import (
 	"bufio"
@@ -10,6 +10,7 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"math"
 	"net/http"
 	"path"
 	"strconv"
@@ -21,19 +22,25 @@ import (
 	"go.viam.com/core/config"
 	"go.viam.com/core/pointcloud"
 	"go.viam.com/core/registry"
-	"go.viam.com/core/rimage"
 	"go.viam.com/core/robot"
 
-	// "go.viam.com/core/spatialmath"
-	"go.viam.com/utils"
-
 	"github.com/edaniels/golog"
+	"github.com/golang/geo/r3"
+	"go.viam.com/utils"
 )
 
 // A Measurement is a struct representing the data collected by the iPhone using
 // the point clouds iPhone app.
 type Measurement struct {
-	PointCloud float64 `json:"poclo"`
+	// e.g of PointCloud:
+	// [(0.1, 0.2, 0.3), (0.4, 0.5, 0.6), ... , (0.7, 0.8, 0.9)]
+	PointCloud []float64 `json:"poclo"`
+	hasColor   bool
+	hasValue   bool
+	minX, maxX float64
+	minY, maxY float64
+	minZ, maxZ float64
+	rbg        []float64 `json:"rbg"`
 }
 
 // IPhone is an iPhone based LiDAR camera.
@@ -52,9 +59,9 @@ type IPhone struct {
 
 // Config is a struct used to configure and construct an IPhone using IPhone.New().
 type Config struct {
-	Host string // The host name of the iPhone being connected to.
-	Port int    // The port to connect to.
-	// isAligned bool   // are color and depth image already aligned
+	Host      string // The host name of the iPhone being connected to.
+	Port      int    // The port to connect to.
+	isAligned bool   // are color and depth image already aligned
 }
 
 const (
@@ -67,17 +74,24 @@ const (
 func init() {
 	registry.RegisterCamera("iPhoneLiDAR", registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
-			return New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
-			// iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// return &camera.ImageSource{iCam}, nil
+			// add conditionals to  make sure that json file was properly formatted?
+
+			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
+			if err != nil {
+				return nil, err
+			}
+			// the velodyne implementation does not use the line below
+			// why is the line below used in some implementations
+			return &camera.ImageSource{iCam}, nil
+			// Note can also use:
+			// RegisterComponentAttributeMapConverter
+			// 'to convert the whole thing and set defaults in the validate function'
+			// what is the validate function?
 		}})
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
-// New creates a connection to a iPhone lidar and generates pointclouds from it
+// New creates a connection to a iPhone lidar and generates pointclouds from it.
 func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, error) {
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	ip := IPhone{
@@ -96,7 +110,7 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 	ip.reader = r
 	ip.measurement.Store(Measurement{})
 
-	// Have a thread in the background constantly reading the latest sensor readings from the iPhone and saving
+	// Have a thread in the background constantly reading the latest camera readings from the iPhone and saving
 	// them to ip.measurement. This avoids the problem of our read accesses constantly being behind by bufSize bytes.
 	ip.activeBackgroundWorkers.Add(1)
 	utils.PanicCapturingGo(func() {
@@ -178,29 +192,101 @@ func (ip *IPhone) readNextMeasurement(ctx context.Context) (*Measurement, error)
 
 	select {
 	case measurement := <-ch:
-		var imuReading Measurement
-		err := json.Unmarshal([]byte(measurement), &imuReading)
+		var camReading Measurement
+		err := json.Unmarshal([]byte(measurement), &camReading)
 		if err != nil {
 			return nil, err
 		}
 
-		return &imuReading, nil
+		return &camReading, nil
 	case <-ctx.Done():
 		return nil, errors.New("timed out waiting for iphone measurement")
 	}
 }
 
-// Next always returns the same image with a red dot in the center.
-func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
-	img := image.NewNRGBA(image.Rect(0, 0, 1024, 1024))
-	img.Set(16, 16, rimage.Red)
-	return img, func() {}, nil
+// basicPointCloud is the basic implementation of the PointCloud interface backed by
+// a map of points keyed by position.
+// type basicPointCloud struct {
+// 	points     map[key]pointcloud.Point
+// 	hasColor   bool
+// 	hasValue   bool
+// 	minX, maxX float64
+// 	minY, maxY float64
+// 	minZ, maxZ float64
+// }
+
+// Vec3 is a three-dimensional vector.
+type Vec3 r3.Vector
+
+// Vec3s is a series of three-dimensional vectors.
+type Vec3s []Vec3
+type basicPoint struct {
+	position  Vec3
+	hasColor  bool
+	c         color.NRGBA
+	hasValue  bool
+	value     int
+	intensity uint16
+	//ARFrame.lightEstimate returns <ARLightEstimate: 0x283d30f80 ambientIntensity=945.43 ambientColorTemperature=5927.38>
 }
 
-// NextPointCloud always returns a pointcloud with a single pixel
 func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-	pc := pointcloud.New()
-	return pc, pc.Set(pointcloud.NewColoredPoint(16, 16, 16, color.NRGBA{255, 0, 0, 255}))
+	camReading := ip.measurement.Load().(Measurement)
+	return camReading.PointCloud, nil
+
+	// pc := pointcloud.New()
+	// return pc, pc.Set(pointcloud.NewColoredPoint(16, 16, 16, color.NRGBA{255, 0, 0, 255}))
+}
+
+func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
+	pc, err := ip.NextPointCloud(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	minX := 0.0
+	minY := 0.0
+
+	maxX := 0.0
+	maxY := 0.0
+
+	pc.Iterate(func(p pointcloud.Point) bool {
+		pos := p.Position()
+		minX = math.Min(minX, pos.X)
+		maxX = math.Max(maxX, pos.X)
+		minY = math.Min(minY, pos.Y)
+		maxY = math.Max(maxY, pos.Y)
+		return true
+	})
+
+	width := 800
+	height := 800
+
+	scale := func(x, y float64) (int, int) {
+		return int(float64(width) * ((x - minX) / (maxX - minX))),
+			int(float64(height) * ((y - minY) / (maxY - minY)))
+	}
+
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+
+	set := func(xpc, ypc float64, clr color.NRGBA) {
+		x, y := scale(xpc, ypc)
+		img.SetNRGBA(x, y, clr)
+	}
+
+	pc.Iterate(func(p pointcloud.Point) bool {
+		set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
+		return true
+	})
+
+	centerSize := .1
+	for x := -1 * centerSize; x < centerSize; x += .01 {
+		for y := -1 * centerSize; y < centerSize; y += .01 {
+			set(x, y, color.NRGBA{0, 255, 0, 255})
+		}
+	}
+
+	return img, nil, nil
 }
 
 func (ip *IPhone) Close() error {
