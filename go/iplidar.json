@@ -1,0 +1,13 @@
+{
+  "components" : [
+    { "name" : "iplidar",
+      "type" : "camera",
+      "model": "iphonelidar",
+      "attributes" : {
+        "isAligned" : true,
+        "host" : "192.168.1.95",
+        "port" : 3000
+      }
+    }
+  ]
+}

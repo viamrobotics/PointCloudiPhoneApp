@@ -34,12 +34,8 @@ type Measurement struct {
 	// e.g of PointCloud:
 	// [(0.1, 0.2, 0.3), (0.4, 0.5, 0.6), ... , (0.7, 0.8, 0.9)]
 	PointCloud [][3]float64 `json:"poclo"`
-	// hasColor   bool
-	// hasValue   bool
-	// minX, maxX float64
-	// minY, maxY float64
-	// minZ, maxZ float64
-	// rbg        []float64 `json:"rbg"`
+	// will also need to add color
+	// rbg        [][3]float64 `json:"rbg"`
 }
 
 // IPhone is an iPhone based LiDAR camera.
@@ -66,26 +62,22 @@ type Config struct {
 const (
 	DefaultPath      = "/hello" //"/measurementStream"
 	defaultTimeoutMs = 1000
-	model            = "iphone"
+	model            = "iphonelidar"
 )
 
 // init registers the iphone lidar camera.
 func init() {
-	registry.RegisterCamera("iPhoneLiDAR", registry.Camera{
+	registry.RegisterCamera("iphonelidar", registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
-			// add conditionals to  make sure that json file was properly formatted?
+			// add conditionals to  make sure that json file was properly formatted
+
+			// add in RegisterComponentAttributeMapConverter
 
 			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
 			if err != nil {
 				return nil, err
 			}
-			// the velodyne implementation does not use the line below
-			// why is the line below used in some implementations
 			return &camera.ImageSource{iCam}, nil
-			// Note can also use:
-			// RegisterComponentAttributeMapConverter
-			// 'to convert the whole thing and set defaults in the validate function'
-			// what is the validate function?
 		}})
 }
 
@@ -221,6 +213,8 @@ func (ip *IPhone) readNextMeasurement(ctx context.Context) (*Measurement, error)
 
 func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
 	// camReading := ip.measurement.Load().(Measurement)
+	// pcl := camReading.PointCloud // of type [][3]float64
+
 	// return camReading.PointCloud, nil
 
 	pc := pointcloud.New()
@@ -228,6 +222,7 @@ func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, er
 }
 
 func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
+	// using modified velodyne.go
 	// pc, err := ip.NextPointCloud(ctx)
 	// if err != nil {
 	// 	return nil, nil, err
