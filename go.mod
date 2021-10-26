@@ -1,4 +1,4 @@
-module github.com/viamrobotics/Point-Cloud-iPhone-App
+module go.viam.com/Point-Cloud-iPhone-App
 
 go 1.17
 
