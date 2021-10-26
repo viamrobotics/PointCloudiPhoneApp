@@ -33,7 +33,7 @@ import (
 type Measurement struct {
 	// e.g of PointCloud:
 	// [(0.1, 0.2, 0.3), (0.4, 0.5, 0.6), ... , (0.7, 0.8, 0.9)]
-	PointCloud []float64 `json:"poclo"`
+	PointCloud [][3]float64 `json:"poclo"`
 	// hasColor   bool
 	// hasValue   bool
 	// minX, maxX float64
@@ -130,16 +130,6 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 	})
 
 	return &ip, nil
-}
-
-// StartCalibration does nothing.
-func (ip *IPhone) StartCalibration(ctx context.Context) error {
-	return nil
-}
-
-// StopCalibration does nothing.
-func (ip *IPhone) StopCalibration(ctx context.Context) error {
-	return nil
 }
 
 func (c *Config) getNewReader() (*bufio.Reader, io.ReadCloser, error) {
