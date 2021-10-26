@@ -1,5 +1,5 @@
 // Package iphonelidar provides a command for viewing the output of iPhone's LiDAR camera
-package iPhoneLiDAR
+package iphonelidar
 
 import (
 	"bufio"
@@ -10,7 +10,6 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"math"
 	"net/http"
 	"path"
 	"strconv"
@@ -22,6 +21,7 @@ import (
 	"go.viam.com/core/config"
 	"go.viam.com/core/pointcloud"
 	"go.viam.com/core/registry"
+	"go.viam.com/core/rimage"
 	"go.viam.com/core/robot"
 
 	"github.com/edaniels/golog"
@@ -64,7 +64,7 @@ type Config struct {
 }
 
 const (
-	DefaultPath      = "/measurementStream"
+	DefaultPath      = "/hello" //"/measurementStream"
 	defaultTimeoutMs = 1000
 	model            = "iphone"
 )
@@ -238,54 +238,58 @@ func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, er
 }
 
 func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
-	pc, err := ip.NextPointCloud(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
+	// pc, err := ip.NextPointCloud(ctx)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
 
-	minX := 0.0
-	minY := 0.0
+	// minX := 0.0
+	// minY := 0.0
 
-	maxX := 0.0
-	maxY := 0.0
+	// maxX := 0.0
+	// maxY := 0.0
 
-	pc.Iterate(func(p pointcloud.Point) bool {
-		pos := p.Position()
-		minX = math.Min(minX, pos.X)
-		maxX = math.Max(maxX, pos.X)
-		minY = math.Min(minY, pos.Y)
-		maxY = math.Max(maxY, pos.Y)
-		return true
-	})
+	// pc.Iterate(func(p pointcloud.Point) bool {
+	// 	pos := p.Position()
+	// 	minX = math.Min(minX, pos.X)
+	// 	maxX = math.Max(maxX, pos.X)
+	// 	minY = math.Min(minY, pos.Y)
+	// 	maxY = math.Max(maxY, pos.Y)
+	// 	return true
+	// })
 
-	width := 800
-	height := 800
+	// width := 800
+	// height := 800
 
-	scale := func(x, y float64) (int, int) {
-		return int(float64(width) * ((x - minX) / (maxX - minX))),
-			int(float64(height) * ((y - minY) / (maxY - minY)))
-	}
+	// scale := func(x, y float64) (int, int) {
+	// 	return int(float64(width) * ((x - minX) / (maxX - minX))),
+	// 		int(float64(height) * ((y - minY) / (maxY - minY)))
+	// }
 
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	// img := image.NewNRGBA(image.Rect(0, 0, width, height))
 
-	set := func(xpc, ypc float64, clr color.NRGBA) {
-		x, y := scale(xpc, ypc)
-		img.SetNRGBA(x, y, clr)
-	}
+	// set := func(xpc, ypc float64, clr color.NRGBA) {
+	// 	x, y := scale(xpc, ypc)
+	// 	img.SetNRGBA(x, y, clr)
+	// }
 
-	pc.Iterate(func(p pointcloud.Point) bool {
-		set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
-		return true
-	})
+	// pc.Iterate(func(p pointcloud.Point) bool {
+	// 	set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
+	// 	return true
+	// })
 
-	centerSize := .1
-	for x := -1 * centerSize; x < centerSize; x += .01 {
-		for y := -1 * centerSize; y < centerSize; y += .01 {
-			set(x, y, color.NRGBA{0, 255, 0, 255})
-		}
-	}
+	// centerSize := .1
+	// for x := -1 * centerSize; x < centerSize; x += .01 {
+	// 	for y := -1 * centerSize; y < centerSize; y += .01 {
+	// 		set(x, y, color.NRGBA{0, 255, 0, 255})
+	// 	}
+	// }
 
-	return img, nil, nil
+	// return img, nil, nil
+
+	img := image.NewNRGBA(image.Rect(0, 0, 1024, 1024))
+	img.Set(16, 16, rimage.Red)
+	return img, func() {}, nil
 }
 
 func (ip *IPhone) Close() error {
