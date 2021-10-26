@@ -127,6 +127,7 @@ class Renderer {
                 if let strongSelf = self {
                     strongSelf.inFlightSemaphore.signal()
                 }
+                print(textures.debugDescription)
                 textures.removeAll()
             }
 
@@ -406,12 +407,13 @@ class Renderer {
     
     func rbgvals(frame: ARFrame){
         
+        
         //print(frame.rawFeaturePoints?.points ?? "nil")
 //        print("camera - type: ARCamera")
 //        print(frame.camera)
 //        print("----")
 //        print("capturedImage")
-//        print(frame.capturedImage)
+        print(frame.capturedImage)
 //        print("----")
 //        print("timestamp")
 //        print(frame.timestamp)
@@ -453,6 +455,8 @@ class Renderer {
 //        print("----------------------------------------")
 //        print(" ")
 //        print(" ")
+        
+        
 //        capturedImage
 //        <CVPixelBuffer 0x286710780 width=1920 height=1440 pixelFormat=420f iosurface=0x2813a2640 planes=2>
 //        <Plane 0 width=1920 height=1440 bytesPerRow=1920>

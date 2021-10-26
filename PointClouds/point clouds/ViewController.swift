@@ -105,8 +105,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     }
 
     // MARK: - Private funcs for Bluetooth
-    
-
     // sending data when appropriate
     static var sendingEOM = false
 
