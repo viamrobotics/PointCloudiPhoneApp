@@ -25,7 +25,6 @@ import (
 	"go.viam.com/core/robot"
 
 	"github.com/edaniels/golog"
-	"github.com/golang/geo/r3"
 	"go.viam.com/utils"
 )
 
@@ -35,12 +34,12 @@ type Measurement struct {
 	// e.g of PointCloud:
 	// [(0.1, 0.2, 0.3), (0.4, 0.5, 0.6), ... , (0.7, 0.8, 0.9)]
 	PointCloud []float64 `json:"poclo"`
-	hasColor   bool
-	hasValue   bool
-	minX, maxX float64
-	minY, maxY float64
-	minZ, maxZ float64
-	rbg        []float64 `json:"rbg"`
+	// hasColor   bool
+	// hasValue   bool
+	// minX, maxX float64
+	// minY, maxY float64
+	// minZ, maxZ float64
+	// rbg        []float64 `json:"rbg"`
 }
 
 // IPhone is an iPhone based LiDAR camera.
@@ -216,26 +215,26 @@ func (ip *IPhone) readNextMeasurement(ctx context.Context) (*Measurement, error)
 // }
 
 // Vec3 is a three-dimensional vector.
-type Vec3 r3.Vector
+//type Vec3 r3.Vector
 
 // Vec3s is a series of three-dimensional vectors.
-type Vec3s []Vec3
-type basicPoint struct {
-	position  Vec3
-	hasColor  bool
-	c         color.NRGBA
-	hasValue  bool
-	value     int
-	intensity uint16
-	//ARFrame.lightEstimate returns <ARLightEstimate: 0x283d30f80 ambientIntensity=945.43 ambientColorTemperature=5927.38>
-}
+// type Vec3s []Vec3
+// type basicPoint struct {
+// 	position  Vec3
+// 	hasColor  bool
+// 	c         color.NRGBA
+// 	hasValue  bool
+// 	value     int
+// 	intensity uint16
+//ARFrame.lightEstimate returns <ARLightEstimate: 0x283d30f80 ambientIntensity=945.43 ambientColorTemperature=5927.38>
+//}
 
 func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-	camReading := ip.measurement.Load().(Measurement)
-	return camReading.PointCloud, nil
+	// camReading := ip.measurement.Load().(Measurement)
+	// return camReading.PointCloud, nil
 
-	// pc := pointcloud.New()
-	// return pc, pc.Set(pointcloud.NewColoredPoint(16, 16, 16, color.NRGBA{255, 0, 0, 255}))
+	pc := pointcloud.New()
+	return pc, pc.Set(pointcloud.NewColoredPoint(16, 16, 16, color.NRGBA{255, 0, 0, 255}))
 }
 
 func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
