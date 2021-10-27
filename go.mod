@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/edaniels/golog v0.0.0-20210326173913-16d408aa7a5e
-	go.viam.com/core v0.0.0-20211026011941-b957b70c50f9
+	go.viam.com/core v0.0.0-20211027041452-3901db732cf1
 	go.viam.com/utils v0.0.2-0.20211022043729-bfbcdc7c186c
 )
 
