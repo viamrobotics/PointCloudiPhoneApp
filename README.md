@@ -4,7 +4,7 @@ Point Clouds is an iOS app that records iPhone LiDAR data and exports it via a l
 The app also allows the iphone to form a Bluetooth Low Energy (BLE) connection and export data.
 As it stands the app cannot stream data in real time through a BLE connection. To approach this hurdle a potential solution lies in adjusting the RPI's Maximum Transmission Unit (MTU).  
  The repo is organized as follows:
- - `\go` contains Go client code for reading the data exported by the SensorExporter app.
+ - `\go` contains Go client code for reading the data exported by the PointCloudiPhoneApp app.
  - `\PointCloudiPhoneApp` contains the source code of the iOS app.
 
 
