@@ -1,4 +1,4 @@
-module go.viam.com/Point-Cloud-iPhone-App
+module go.viam.com/PointCloudiPhoneApp
 
 go 1.17
 
