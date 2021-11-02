@@ -72,8 +72,9 @@ func init() {
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
 			fmt.Printf("bye")
 			// add conditionals to  make sure that json file was properly formatted
-			iCam, err := New(ctx, Config{Host: "192.168.132.146", Port: 3000}, logger)
-			//iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port, logger)
+			
+			//iCam, err := New(ctx, Config{Host: "192.168.132.146", Port: 3000}, logger)
+			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port, logger)
 			if err != nil {
 				return nil, err
 			}
