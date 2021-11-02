@@ -1,5 +1,5 @@
 // Package iphonelidar provides a command for viewing the output of iPhone's LiDAR camera
-package main
+package iphonelidar
 
 import (
 	"bufio"
@@ -79,6 +79,7 @@ func init() {
 			}
 			return &camera.ImageSource{iCam}, nil
 		}})
+	fmt.Printf("hi2")
 
 	config.RegisterComponentAttributeMapConverter(config.ComponentTypeInputController, modelname, func(attributes config.AttributeMap) (interface{}, error) {
 		var conf Config
