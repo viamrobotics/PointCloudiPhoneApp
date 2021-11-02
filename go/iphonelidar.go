@@ -33,8 +33,7 @@ import (
 	"go.viam.com/utils"
 )
 
-// A Measurement is a struct representing the data collected by the iPhone using
-// the point clouds iPhone app.
+// A Measurement is a struct representing the data collected by the iPhone using the point clouds iPhone app.
 type Measurement struct {
 	PointCloud string `json:"poclo"`
 	// rbg        [][3]float64 `json:"rbg"`
@@ -62,19 +61,19 @@ type Config struct {
 }
 
 const (
-	DefaultPath      = "/measurementStream"
-	defaultTimeoutMs = 1000
-	modelname        = "iphonelidar"
+	DefaultPath = "/measurement"
+	modelname   = "iphonelidar"
 )
 
 // init registers the iphone lidar camera.
-func main() {
-	//fmt.Printf("hi1")
+func init() {
+	fmt.Printf("hi1")
 	registry.RegisterCamera(modelname, registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
 			fmt.Printf("bye")
 			// add conditionals to  make sure that json file was properly formatted
 			iCam, err := New(ctx, Config{Host: "192.168.132.146", Port: 3000}, logger)
+			//iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port, logger)
 			if err != nil {
 				return nil, err
 			}
@@ -97,7 +96,7 @@ func main() {
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
 func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, error) {
-	fmt.Printf("hi1")
+	fmt.Printf("hi1111")
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	ip := IPhone{
 		Config:                  &config,
