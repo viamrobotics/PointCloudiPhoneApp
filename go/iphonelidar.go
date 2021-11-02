@@ -57,8 +57,8 @@ type IPhone struct {
 
 // Config is a struct used to configure and construct an IPhone using IPhone.New().
 type Config struct {
-	Host string "192.168.132.146" // The host name of the iPhone being connected to.
-	Port int    "3000"            // The port to connect to.
+	Host string // The host name of the iPhone being connected to.
+	Port int    // The port to connect to.
 }
 
 const (
@@ -69,15 +69,18 @@ const (
 
 // init registers the iphone lidar camera.
 func main() {
+	//fmt.Printf("hi1")
 	registry.RegisterCamera(modelname, registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
+			fmt.Printf("bye")
 			// add conditionals to  make sure that json file was properly formatted
-			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
+			iCam, err := New(ctx, Config{Host: "192.168.132.146", Port: 3000}, logger)
 			if err != nil {
 				return nil, err
 			}
 			return &camera.ImageSource{iCam}, nil
 		}})
+
 	config.RegisterComponentAttributeMapConverter(config.ComponentTypeInputController, modelname, func(attributes config.AttributeMap) (interface{}, error) {
 		var conf Config
 		decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{TagName: "json", Result: &conf})
@@ -87,12 +90,14 @@ func main() {
 		if err := decoder.Decode(attributes); err != nil {
 			return nil, err
 		}
+		fmt.Println(conf)
 		return &conf, nil
 	})
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
 func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, error) {
+	fmt.Printf("hi1")
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	ip := IPhone{
 		Config:                  &config,
@@ -109,8 +114,7 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
 
-	// Have a thread in the background constantly reading the latest camera readings from the iPhone and saving
-	// them to ip.measurement. This avoids the problem of our read accesses constantly being behind by bufSize bytes.
+	// Have a thread in the background constantly reading the latest camera readings from the iPhone
 	ip.activeBackgroundWorkers.Add(1)
 	utils.PanicCapturingGo(func() {
 		defer ip.activeBackgroundWorkers.Done()
