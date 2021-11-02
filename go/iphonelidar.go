@@ -33,8 +33,7 @@ import (
 	"go.viam.com/utils"
 )
 
-// A Measurement is a struct representing the data collected by the iPhone using
-// the point clouds iPhone app.
+// A Measurement is a struct representing the data collected by the iPhone using the point clouds iPhone app.
 type Measurement struct {
 	PointCloud string `json:"poclo"`
 	// rbg        [][3]float64 `json:"rbg"`
@@ -46,7 +45,8 @@ type IPhone struct {
 	readCloser  io.ReadCloser // The underlying response stream from the iPhone.
 	reader      *bufio.Reader // Read connection to iPhone to pull lidar data from.
 	log         golog.Logger
-	mut         sync.Mutex   // Mutex to ensure only one goroutine or thread is reading from reader at a time.
+	mut         sync.Mutex // Mutex to ensure only one goroutine or thread is reading from reader at a time.
+	lastError   error
 	measurement atomic.Value // The latest measurement value read from reader.
 
 	cancelCtx               context.Context
@@ -56,27 +56,30 @@ type IPhone struct {
 
 // Config is a struct used to configure and construct an IPhone using IPhone.New().
 type Config struct {
-	Host string "192.168.132.146" // The host name of the iPhone being connected to.
-	Port int    "3000"            // The port to connect to.
+	Host string // The host name of the iPhone being connected to.
+	Port int    // The port to connect to.
 }
 
 const (
-	DefaultPath      = "/measurementStream"
-	defaultTimeoutMs = 1000
-	modelname        = "iphonelidar"
+	DefaultPath = "/measurement"
+	modelname   = "iphonelidar"
 )
 
 // init registers the iphone lidar camera.
 func init() {
+	fmt.Printf("hi1")
 	registry.RegisterCamera(modelname, registry.Camera{
 		Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
+			fmt.Printf("bye")
 			// add conditionals to  make sure that json file was properly formatted
-			iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port}, logger)
+			iCam, err := New(ctx, Config{Host: "192.168.132.146", Port: 3000}, logger)
+			//iCam, err := New(ctx, Config{Host: c.Host, Port: c.Port, logger)
 			if err != nil {
 				return nil, err
 			}
 			return &camera.ImageSource{iCam}, nil
 		}})
+
 	config.RegisterComponentAttributeMapConverter(config.ComponentTypeInputController, modelname, func(attributes config.AttributeMap) (interface{}, error) {
 		var conf Config
 		decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{TagName: "json", Result: &conf})
@@ -86,12 +89,14 @@ func init() {
 		if err := decoder.Decode(attributes); err != nil {
 			return nil, err
 		}
+		fmt.Println(conf)
 		return &conf, nil
 	})
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
 func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, error) {
+	fmt.Printf("hi1111")
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	ip := IPhone{
 		Config:                  &config,
@@ -104,11 +109,11 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 
 	err := ip.Config.tryConnection()
 	if err != nil {
+		ip.setLastError(err)
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
 
-	// Have a thread in the background constantly reading the latest camera readings from the iPhone and saving
-	// them to ip.measurement. This avoids the problem of our read accesses constantly being behind by bufSize bytes.
+	// Have a thread in the background constantly reading the latest camera readings from the iPhone
 	ip.activeBackgroundWorkers.Add(1)
 	utils.PanicCapturingGo(func() {
 		defer ip.activeBackgroundWorkers.Done()
@@ -118,8 +123,16 @@ func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, erro
 				return
 			default:
 			}
-			CamReading, f, err := ip.Next(ip.cancelCtx)
+			_, _, err := ip.Next(ip.cancelCtx)
 			if err != nil {
+				// try connecting again
+				reerr := ip.Config.tryConnection()
+				if reerr != nil {
+					ip.setLastError(err)
+					return
+					//return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
+				}
+				ip.setLastError(err)
 				logger.Debugw("error reading iphone data", "error", err)
 			}
 		}
@@ -141,10 +154,16 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
+	ip.mut.Lock()
+	defer ip.mut.Unlock()
+	if ip.lastError != nil {
+		return nil, ip.lastError
+	}
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
 	if err != nil {
+		ip.setLastError(err)
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
@@ -153,6 +172,7 @@ func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, er
 	//We Read the response body on the line below.
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		ip.setLastError(err)
 		return nil, err
 	}
 	//Convert the body to type string
@@ -161,8 +181,9 @@ func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, er
 
 	pc := pointcloud.New()
 	for i := 0; i < len(points); i++ {
-		err := pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][3]).SetIntesnity(uint16(1))
+		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][3]).SetIntesnity(uint16(1)))
 		if err != nil {
+			ip.setLastError(err)
 			return nil, err
 		}
 	}
@@ -172,6 +193,7 @@ func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, er
 func (ip *IPhone) Next(ctx context.Context) (image.Image, func(), error) {
 	pc, err := ip.NextPointCloud(ctx)
 	if err != nil {
+		ip.setLastError(err)
 		return nil, nil, err
 	}
 
@@ -257,4 +279,10 @@ func stringConverter(s string) [][]float64 {
 	}
 	//fmt.Println(l0)
 	return l0
+}
+
+func (ip *IPhone) setLastError(err error) {
+	ip.mut.Lock()
+	defer ip.mut.Unlock()
+	ip.lastError = err
 }
