@@ -127,13 +127,12 @@ class Renderer {
                 if let strongSelf = self {
                     strongSelf.inFlightSemaphore.signal()
                 }
-                print(textures.debugDescription)
+                //print(textures.debugDescription)
                 textures.removeAll()
             }
 
             updateBufferStates()
             updateGameState()
-            // pointcloud()
 
             if let renderPassDescriptor = renderDestination.currentRenderPassDescriptor, let currentDrawable = renderDestination.currentDrawable, let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) {
 
@@ -351,7 +350,8 @@ class Renderer {
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
-        //rbgvals(frame: currentFrame)
+        //r5points()
+        //r3points()
 
         if viewportSizeDidChange {
             viewportSizeDidChange = false
@@ -359,151 +359,55 @@ class Renderer {
             updateImagePlane(frame: currentFrame)
         }
     }
-    func r3points() -> Optional<Array<SIMD3<Float>>> {
-        guard let currentFrame = session.currentFrame else {
-            return Optional([SIMD3<Float>(0.1, -0.11, -0.111), SIMD3<Float>(0.2, -0.22, -0.222), SIMD3<Float>(0.3, 0.33, -0.333)])
+
+    func r5points() -> String?  {
+        var points = [(0.012568152, -0.09462015, -0.20932771)]
+        if let currentFrame = session.currentFrame?.rawFeaturePoints{
+            for point in currentFrame.points {
+                let x_coord : Double = Double(point.x.debugDescription)!
+                let y_coord : Double = Double(point.x.debugDescription)!
+                let z_coord : Double = Double(point.x.debugDescription)!
+                let tup = (x_coord,y_coord,z_coord)
+                points.append(tup)
+            }
+            //print(type(of: points)) -> Array<(Double, Double, Double)>
+            // remove first value of list here
+            
+            return points.description
         }
-        return currentFrame.rawFeaturePoints?.points
+        else { return nil }
     }
     
-    func serverpointcloud() -> Data? {
-        
-        guard let currentFrame = session.currentFrame else {
-            return "exit".data(using: .utf8)!
+    func r3points() -> Array<SIMD3<Float>>? {
+        if let currentFrame = session.currentFrame?.rawFeaturePoints{
+            return currentFrame.points
         }
-        let t = currentFrame.rawFeaturePoints?.points.description
-        let nt = t?.replacingOccurrences(of: "SIMD3<Float>", with: "", options: .literal, range: nil)
-        let nnt = nt?.replacingOccurrences(of: "Optional(", with: "", options: .literal, range: nil)
-        let nnnt = nnt?.replacingOccurrences(of: "[", with: "", options: .literal, range: nil)
-        let nnnnt = nnnt?.replacingOccurrences(of: "]", with: "", options: .literal, range: nil)
-        let send = nnnnt?.data(using: .utf8)
-        return send
+        else {
+            return nil
+        }
     }
     
+    
+    // called by 'didSubscribe' method in ViewController
+    // for bluetooth functionality
     func pointcloud() -> Data {
-        
         guard let currentFrame = session.currentFrame else {
             return "exit".data(using: .utf8)!
         }
-        
         let t = currentFrame.rawFeaturePoints?.points.description
         let nt = t?.replacingOccurrences(of: "SIMD3<Float>", with: "", options: .literal, range: nil) ?? "nil"
-        //os_log("1")
         if nt == "nil" {
-            //os_log("333")
             return "special".data(using: .utf8)!
         } else {
             let nnt = nt.replacingOccurrences(of: "Optional(", with: "", options: .literal, range: nil)
-            //os_log("2")
             let nnnt = nnt.replacingOccurrences(of: "[", with: "", options: .literal, range: nil)
-            //os_log("3")
             let nnnnt = nnnt.replacingOccurrences(of: "]", with: "", options: .literal, range: nil)
             let send = nnnnt.data(using: .utf8)
-            print(send!)
-            print(" ")
             return send!
             }
     }
     
-    func rbgvals(frame: ARFrame){
-        
-        
-        //print(frame.rawFeaturePoints?.points ?? "nil")
-//        print("camera - type: ARCamera")
-//        print(frame.camera)
-//        print("----")
-//        print("capturedImage")
-        print(frame.capturedImage)
-//        print("----")
-//        print("timestamp")
-//        print(frame.timestamp)
-//        print("----")
-//        print("cameraGrainIntensity")
-//        print(frame.cameraGrainIntensity)
-//        print("----")
-//        print("cameraGrainTexture")
-//        print(frame.cameraGrainTexture ?? "nil")
-//        print("----")
-//        print("lightEstimate")
-//        print(frame.lightEstimate ?? "nil")
-//        print("----")
-//        print("rawFeaturePoints")
-//        print(frame.rawFeaturePoints ?? "nil")
-//        print("----")
-//        print("rawFeaturePoints?.points.description")
-//        print(frame.rawFeaturePoints?.points.description ?? "nil")
-//        print("----")
-//        print("rawFeaturePoints?.identifiers.description")
-//        print(frame.rawFeaturePoints?.identifiers.description ?? "nil")
-//        print("----")
-//        print("capturedDepthData")
-//        print(frame.capturedDepthData ?? "nil")
-//        print("----")
-//        print("capturedDepthDataTimestamp")
-//        print(frame.capturedDepthDataTimestamp)
-//        print("----")
-//        print("sceneDepth")
-//        print(frame.sceneDepth ?? "nil")
-//        print("----")
-//        print("smoothedSceneDepth")
-//        print(frame.smoothedSceneDepth ?? "nil")
-//        print("----")
-//        print("anchors")
-//        print(frame.anchors)
-//        print(" ")
-//        print(" ")
-//        print("----------------------------------------")
-//        print(" ")
-//        print(" ")
-        
-        
-//        capturedImage
-//        <CVPixelBuffer 0x286710780 width=1920 height=1440 pixelFormat=420f iosurface=0x2813a2640 planes=2>
-//        <Plane 0 width=1920 height=1440 bytesPerRow=1920>
-//        <Plane 1 width=960 height=720 bytesPerRow=1920>
-//        <attributes={
-//            PixelFormatDescription =     {
-//                BitsPerComponent = 8;
-//                ComponentRange = FullRange;
-//                ContainsAlpha = 0;
-//                ContainsGrayscale = 0;
-//                ContainsRGB = 0;
-//                ContainsYCbCr = 1;
-//                FillExtendedPixelsCallback = {length = 24, bytes = 0x000000000000000054bca288010000000000000000000000};
-//                IOSurfaceCoreAnimationCompatibility = 1;
-//                IOSurfaceOpenGLESFBOCompatibility = 1;
-//                IOSurfaceOpenGLESTextureCompatibility = 1;
-//                OpenGLESCompatibility = 1;
-//                PixelFormat = 875704422;
-//                Planes =         (
-//                                {
-//                        BitsPerBlock = 8;
-//                        BlackBlock = {length = 1, bytes = 0x00};
-//                    },
-//                                {
-//                        BitsPerBlock = 16;
-//                        BlackBlock = {length = 2, bytes = 0x8080};
-//                        HorizontalSubsampling = 2;
-//                        VerticalSubsampling = 2;
-//                    }
-//                );
-//            };
-//        } propagatedAttachments={
-//            CVImageBufferColorPrimaries = "ITU_R_709_2";
-//            CVImageBufferTransferFunction = "ITU_R_709_2";
-//            CVImageBufferYCbCrMatrix = "ITU_R_601_4";
-//            MetadataDictionary =     {
-//                ExposureTime = "0.005725";
-//                SensorID = 1283;
-//            };
-//        } nonPropagatedAttachments={
-//        }>
-//
-//        capturedDepthData
-//        nil
-//        --------------------
-    }
-
+    
     func updateSharedUniforms(frame: ARFrame) {
 
         // Update the shared uniforms of the frame

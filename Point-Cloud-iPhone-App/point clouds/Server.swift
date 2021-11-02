@@ -11,38 +11,11 @@ import Swifter
 import OSLog
 import SwiftUI
 
-
-// based off core/pointcloud/pointcloud.go
-struct Measurement: Codable {
-    // Size returns the number of points in the cloud.
-    var Size: Int?
-
-    // HasColor returns whether or not the cloud consists of points with color.
-    var HasColor: Bool?
-
-    // HasValue returns whether or not the cloud consists of points with user data value.
-    var HasValue: Bool?
-
-    // MinX returns the minimum x coordinate of all points in the cloud.
-    var MinX: Float64?
-
-    // MaxY returns the maximum y coordinate of all points in the cloud.
-    var MaxX: Float64?
-
-    // MinY returns the minimum y coordinate of all points in the cloud.
-    var MinY: Float64?
-
-    // MaxY returns the maximum y coordinate of all points in the cloud.
-    var MaxY: Float64?
-
-    // MinZ returns the minimum z coordinate of all points in the cloud.
-    var MinZ: Float64?
-
-    // MaxZ returns the maximum z coordinate of all points in the cloud.
-    var MaxZ: Float64?
-    
+struct Measurement: Encodable {
     // Point cloud data
-    var poclo: Optional<Array<SIMD3<Float>>>?
+    //var poclo: Array<SIMD3<Float>>?
+    var poclo: String?
+    //var poclo: Array<(Double, Double, Double)>
     
     // RBG data
     var rbg: Optional<Array<SIMD3<Float>>>?
@@ -158,7 +131,7 @@ class Server {
     
     func getLatestMeasurement() -> Data? {
         var rawMeas = Measurement()
-        rawMeas.poclo = renderer.r3points()
+        rawMeas.poclo = renderer.r5points()
         do {
             let data = try encoder.encode(rawMeas)
             return data

@@ -104,7 +104,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
         renderer.update()
     }
 
-    // MARK: - Private funcs for Bluetooth
+
+    
     // sending data when appropriate
     static var sendingEOM = false
 
@@ -242,7 +243,7 @@ extension ViewController: CBPeripheralManagerDelegate{
         }
         os_log("Start advertising succeeded")
         os_log("bool if advertising is working: \(self.peripheralManager.isAdvertising)")
-        print(renderer.pointcloud())
+        //print(renderer.pointcloud())
         
     }
     
