@@ -4,8 +4,9 @@ go 1.17
 
 require (
 	github.com/edaniels/golog v0.0.0-20210326173913-16d408aa7a5e
-	go.viam.com/core v0.0.0-20211027041452-3901db732cf1
-	go.viam.com/utils v0.0.2-0.20211022043729-bfbcdc7c186c
+	github.com/mitchellh/mapstructure v1.4.1
+	go.viam.com/core v0.0.0-20211101191329-62ab18ceca7a
+	go.viam.com/utils v0.0.2-0.20211101184317-7397cad8fd56
 )
 
 require (
@@ -17,7 +18,7 @@ require (
 	github.com/aybabtme/uniplot v0.0.0-20151203143629-039c559e5e7e // indirect
 	github.com/campoy/embedmd v1.0.0 // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
-	github.com/edaniels/gostream v0.0.0-20211022021553-dcb5ba36518a // indirect
+	github.com/edaniels/gostream v0.0.0-20211101162652-c9f6228ca545 // indirect
 	github.com/erh/scheme v0.0.0-20210304170849-99d295c6ce9a // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -47,18 +48,17 @@ require (
 	github.com/klauspost/compress v1.11.7 // indirect
 	github.com/lmittmann/ppm v1.0.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762 // indirect
 	github.com/muesli/kmeans v0.2.1 // indirect
-	github.com/pion/datachannel v1.4.22-0.20210420230629-6daf0fdcfcc0 // indirect
+	github.com/pion/datachannel v1.5.0 // indirect
 	github.com/pion/dtls/v2 v2.0.10 // indirect
-	github.com/pion/ice/v2 v2.1.12 // indirect
+	github.com/pion/ice/v2 v2.1.13 // indirect
 	github.com/pion/interceptor v0.1.0 // indirect
 	github.com/pion/logging v0.2.2 // indirect
 	github.com/pion/mdns v0.0.5 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtcp v1.2.8 // indirect
-	github.com/pion/rtp v1.7.2 // indirect
+	github.com/pion/rtp v1.7.4 // indirect
 	github.com/pion/sctp v1.7.12 // indirect
 	github.com/pion/sdp/v3 v3.0.4 // indirect
 	github.com/pion/srtp/v2 v2.0.5 // indirect
@@ -66,7 +66,7 @@ require (
 	github.com/pion/transport v0.12.3 // indirect
 	github.com/pion/turn/v2 v2.0.5 // indirect
 	github.com/pion/udp v0.1.1 // indirect
-	github.com/pion/webrtc/v3 v3.1.5 // indirect
+	github.com/pion/webrtc/v3 v3.1.7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
@@ -86,13 +86,13 @@ require (
 	go.viam.com/test v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/exp v0.0.0-20201203231725-fa01524bc59d // indirect
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
+	golang.org/x/net v0.0.0-20211029224645-99673261e6eb // indirect
 	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211020174200-9d6173849985 // indirect
+	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
