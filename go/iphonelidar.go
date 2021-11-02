@@ -82,7 +82,6 @@ func init() {
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
-// New creates a connection to a iPhone lidar and generates pointclouds from it.
 func New(ctx context.Context, config Config, logger golog.Logger) (*IPhone, error) {
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	ip := IPhone{
@@ -214,7 +213,6 @@ func (ip *IPhone) readNextMeasurement(ctx context.Context) (*Measurement, error)
 func (ip *IPhone) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
 	// camReading := ip.measurement.Load().(Measurement)
 	// pcl := camReading.PointCloud // of type [][3]float64
-	
 
 	// return camReading.PointCloud, nil
 
@@ -283,4 +281,3 @@ func (ip *IPhone) Close() error {
 	ip.activeBackgroundWorkers.Wait()
 	return ip.readCloser.Close()
 }
-
