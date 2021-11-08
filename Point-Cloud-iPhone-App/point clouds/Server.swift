@@ -11,18 +11,18 @@ import Swifter
 import OSLog
 import SwiftUI
 
-struct Measurement: Encodable {
+struct Measurement: Codable {
     // Point cloud data
     //var poclo: Array<SIMD3<Float>>?
     var poclo: String?
     //var poclo: Array<(Double, Double, Double)>
     
     // RBG data
-    var rbg: Optional<Array<SIMD3<Float>>>?
+    // rbg: Optional<Array<SIMD3<Float>>>?
 }
 
 class Server {
-    var renderer: Renderer!
+    var renderer: Renderer
     var host = ""
     var port: String{
         willSet{
@@ -39,14 +39,17 @@ class Server {
     // The rate at which the server will send new measurement values on measurementStream.
     var refreshRateHz:Int
     
-    init(refreshRateHz: Int, port: Int) {
+    init(renderer: Renderer, refreshRateHz: Int, port: Int) {
         self.port = String(port)
         self.refreshRateHz = refreshRateHz
-        initHandlers()
         //initObservers()
-        os_log("Started server")
-        start()
         
+        // Set the view to use the default device
+        self.renderer = renderer
+        //print(renderer.r5points())
+        initHandlers()
+        start()
+        os_log("Started server")
     }
         
     // Turn server off when the app enters the background.
