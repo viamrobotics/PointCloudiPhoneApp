@@ -5,6 +5,6 @@
       "model": "iphonelidar",
       "host" : "192.168.132.146",
       "port" : 3000
-      }
+    }
   ]
 }
