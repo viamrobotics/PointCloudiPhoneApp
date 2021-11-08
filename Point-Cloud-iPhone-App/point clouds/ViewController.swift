@@ -35,8 +35,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
     override func viewDidLoad() {
         
-        //start server
-        let _ = Server(refreshRateHz: 50, port: 3000)
+
         
         
         //instantiate peripheralManager
@@ -64,7 +63,12 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
             // Configure the renderer to draw to the view
             renderer = Renderer(session: session, metalDevice: view.device!, renderDestination: view)
             renderer.drawRectResized(size: view.bounds.size)
+            
+            //start server
+            let _ = Server(renderer: renderer, refreshRateHz: 50, port: 3000)
         }
+        
+        
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -103,9 +107,15 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     func draw(in view: MTKView) {
         renderer.update()
     }
-
-
     
+    // MARK: - renderer call func for pointclouds
+    
+    func callme() -> String {
+        return renderer.r5points()
+    }
+
+
+    // MARK: - Start of Bluetooth code
     // sending data when appropriate
     static var sendingEOM = false
 
