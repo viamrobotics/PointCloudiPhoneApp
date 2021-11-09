@@ -67,7 +67,6 @@ type Config struct {
 }
 
 const (
-	//DefaultPath = "/measurementstream"
 	DefaultPath = "/measurement"
 	modelname   = "iphonelidar"
 )
@@ -75,7 +74,7 @@ const (
 // init registers the iphone lidar camera.
 func init() {
 	registry.RegisterCamera(modelname, registry.Camera{Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
-		iCam, err := New(ctx, r, Config{Host: c.ConvertedAttributes.(*iPConfig).Host, Port: c.ConvertedAttributes.(*iPConfig).Port}, logger)
+		iCam, err := New(ctx, Config{Host: c.ConvertedAttributes.(*iPConfig).Host, Port: c.ConvertedAttributes.(*iPConfig).Port}, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -95,7 +94,7 @@ func init() {
 }
 
 // New returns a new IPhone that that pulls data from the iPhone defined in config.
-func New(ctx context.Context, r robot.Robot, config Config, logger golog.Logger) (camera.Camera, error) {
+func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera, error) {
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 
 	ip := IPhoneCam{
@@ -109,7 +108,6 @@ func New(ctx context.Context, r robot.Robot, config Config, logger golog.Logger)
 
 	err := ip.Config.tryConnection()
 	if err != nil {
-		//ip.setLastError(err)
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
 
@@ -125,7 +123,6 @@ func New(ctx context.Context, r robot.Robot, config Config, logger golog.Logger)
 			}
 			err := ip.Config.tryConnection()
 			if err != nil {
-				//ip.setLastError(err)
 				logger.Debugw("error reading iphone data", "error", err)
 				ip.Close()
 			}
@@ -148,16 +145,10 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-
-	// if ip.lastError != nil {
-	// 	return nil, ip.lastError
-	// }
-
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
 	if err != nil {
-		//ip.setLastError(err)
 		return nil, err
 	}
 	//defer resp.Body.Close()
@@ -165,6 +156,7 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
+
 	//We read the response body on the line below.
 	var measurement Measurement
 	errr := json.NewDecoder(resp.Body).Decode(&measurement)
@@ -173,39 +165,23 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	}
 
 	sb := measurement.PointCloud
-	//log.Println("type of sb is: ", reflect.TypeOf(sb))
-	//log.Println(sb)
 	points := stringConverter(sb)
 	pc := pointcloud.New()
-	//log.Println(points)
-	//log.Println("type of pc is: ", reflect.TypeOf(pc))
 	for i := 0; i < len(points); i++ {
-		//log.Println(points[i][0])
-		//log.Println(points[i][1])
-		//log.Println(points[i][2])
 		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
 		if err != nil {
-			//ip.setLastError(err)
 			return nil, err
 		}
 	}
-	// pc.Iterate(func(p pointcloud.Point) bool {
-	// 	pos := p.Position()
-	// 	log.Println(pos)
-	// 	return true
-	// })
-	//log.Println(pc.Size())
-	//log.Println("cool")
 	return pc, nil
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	ip.mut.Lock()
 	defer ip.mut.Unlock()
-	//log.Println("called Next!")
+
 	pc, err := ip.NextPointCloud(ctx)
 	if err != nil {
-		//ip.setLastError(err)
 		return nil, nil, err
 	}
 
@@ -250,7 +226,7 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 			set(x, y, color.NRGBA{0, 255, 0, 255})
 		}
 	}
-	//log.Println("Next() img")
+
 	return img, nil, nil
 }
 
@@ -287,12 +263,6 @@ func stringConverter(s string) [][]float64 {
 	}
 	return l0
 }
-
-// func (ip *IPhoneCam) setLastError(err error) {
-// 	ip.mut.Lock()
-// 	defer ip.mut.Unlock()
-// 	ip.lastError = err
-// }
 
 func (ip *IPhoneCam) Close() error {
 	ip.cancelFn()
