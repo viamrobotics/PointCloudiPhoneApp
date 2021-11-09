@@ -13,12 +13,9 @@ import SwiftUI
 
 struct Measurement: Codable {
     // Point cloud data
-    //var poclo: Array<SIMD3<Float>>?
     var poclo: String?
-    //var poclo: Array<(Double, Double, Double)>
-    
-    // RBG data
-    // rbg: Optional<Array<SIMD3<Float>>>?
+    // e.g. [(a,b,c), (d,e,f), (g,h,i)] where a ... i are of type float
+    // we will proceed by assinging a .. i an rbg value
 }
 
 class Server {
@@ -32,7 +29,6 @@ class Server {
             }
         }
     }
-    //var port = 0
     var on = false
     let server = HttpServer()
     let encoder = JSONEncoder()
@@ -42,11 +38,9 @@ class Server {
     init(renderer: Renderer, refreshRateHz: Int, port: Int) {
         self.port = String(port)
         self.refreshRateHz = refreshRateHz
-        //initObservers()
         
         // Set the view to use the default device
         self.renderer = renderer
-        //print(renderer.r5points())
         initHandlers()
         start()
         os_log("Started server")
@@ -75,36 +69,7 @@ class Server {
                 return HttpResponse.badRequest(.text("couldn't get latest measurement"))
             }
         }
-        server["/measurementStream"] = { _ in
-                    let newLine = "\n".data(using: .utf8)
-                    let ms = 1000
-                    return HttpResponse.raw(200, "OK", nil) { writer in
-                        var meas: Data?
-                        var start = Date().millisecondsSince1970
-                        var end = Date().millisecondsSince1970
-                        // Writes stream of measurement data at refreshRateHz.
-                        while self.on {
-                            try autoreleasepool {
-                                start = Date().millisecondsSince1970
-                                meas = self.getLatestMeasurement()
-                                if meas != nil {
-                                    try writer.write(meas!)
-                                    try writer.write(newLine!)
-                                } else {
-                                    print("failed to get latest measurement")
-                                }
-                                end = Date().millisecondsSince1970
-                                usleep(useconds_t(max(0, (Int64(1000 / self.refreshRateHz) - (end - start)) * Int64(ms))))
-                            }
-                        }
-                    }
-        }
     }
-    
-//    func initObservers() {
-//        NotificationCenter.default.addObserver(self, selector: #selector(enteredBackground), name: .enteredBackground, object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(enteredForeground), name: .enteredForeground, object: nil)
-//    }
     
     // Starts server on self.port.
     func start() {
