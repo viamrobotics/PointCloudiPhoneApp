@@ -189,11 +189,11 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 			return nil, err
 		}
 	}
-	pc.Iterate(func(p pointcloud.Point) bool {
-		pos := p.Position()
-		log.Println(pos)
-		return true
-	})
+	// pc.Iterate(func(p pointcloud.Point) bool {
+	// 	pos := p.Position()
+	// 	log.Println(pos)
+	// 	return true
+	// })
 	//log.Println(pc.Size())
 	//log.Println("cool")
 	return pc, nil
