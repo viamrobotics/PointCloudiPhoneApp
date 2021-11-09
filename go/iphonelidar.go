@@ -2,15 +2,11 @@
 package iphonelidar
 
 import (
-	//"bufio"
 	"context"
 	"encoding/json"
-	//"reflect"
-	//"errors"
 	"fmt"
 	"image"
 	"image/color"
-	"io"
 	"log"
 	"math"
 	"net/http"
@@ -18,14 +14,11 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	//"sync/atomic"
-	//"time"
 
 	"go.viam.com/core/camera"
 	"go.viam.com/core/config"
 	"go.viam.com/core/pointcloud"
 	"go.viam.com/core/registry"
-	//"go.viam.com/core/rimage"
 	"go.viam.com/core/robot"
 
 	"github.com/edaniels/golog"
@@ -37,19 +30,13 @@ import (
 type Measurement struct {
 	PointCloud string `json:"poclo"`
 	// rbg        [][3]float64 `json:"rbg"`
-
 }
 
 // IPhone is an iPhone based camera.
 type IPhoneCam struct {
-	Config     *Config       // The config struct containing the info necessary to determine what iPhone to connect to.
-	readCloser io.ReadCloser // The underlying response stream from the iPhone.
-	//reader      *bufio.Reader // Read connection to iPhone to pull data from.
-	log golog.Logger
-	mut sync.Mutex // Mutex to ensure only one goroutine or thread is reading from reader at a time.
-	//	lastError error
-	//measurement atomic.Value // The latest measurement value read from reader.
-
+	Config                  *Config // The config struct containing the info necessary to determine what iPhone to connect to.
+	log                     golog.Logger
+	mut                     sync.Mutex // Mutex to ensure only one goroutine or thread is reading from reader at a time.
 	cancelCtx               context.Context
 	cancelFn                func()
 	activeBackgroundWorkers sync.WaitGroup
@@ -138,6 +125,9 @@ func (c *Config) tryConnection() error {
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -151,8 +141,8 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	if err != nil {
 		return nil, err
 	}
-	//defer resp.Body.Close()
-	ip.readCloser = resp.Body
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -230,7 +220,6 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	return img, nil, nil
 }
 
-// returns e.g. = [[1.11 2.22 3.33] [4.44 5.55 666] [7.77 8.88 9.99]]
 func stringConverter(s string) [][]float64 {
 	ss := s[2:]
 	sss := ss[:len(ss)-2]
@@ -267,5 +256,5 @@ func stringConverter(s string) [][]float64 {
 func (ip *IPhoneCam) Close() error {
 	ip.cancelFn()
 	ip.activeBackgroundWorkers.Wait()
-	return ip.readCloser.Close()
+	return nil
 }
