@@ -2,13 +2,13 @@
 
 Point Clouds is an iOS app that records iPhone LiDAR data and exports it via a local HTTP server.
 The app also allows the iphone to form a Bluetooth Low Energy (BLE) connection and export data.
-As it stands the app cannot stream data in real time through a BLE connection. To approach this hurdle a potential solution lies in adjusting the RPI's Maximum Transmission Unit (MTU).  
+As it stands the app cannot stream data in real time through a BLE connection. To approach this hurdle, a potential solution lies in adjusting the RPI's Maximum Transmission Unit (MTU).  
  The repo is organized as follows:
  - `\go` contains Go client code for reading the data exported by the PointCloudiPhoneApp.
  - `\PointCloudiPhoneApp` contains the source code of the iOS app.
 
-
-# First time running the app
+## Usage
+### Setting up the app
 The 'point clouds.xcodeproj' file cannot be opened with Xcode version 12 because of ARKit 5.
 To get Xcode 13 beta, [click here](https://developer.apple.com/xcode/).
 
@@ -19,12 +19,19 @@ Go to the directory containing `Podfile`.
 If you are using an ARM based Mac, you need to run the command in the x86 terminal with `arch -x86_64 pod install`.
 Otherwise, run`pod install`.
 
-Note: If you are also using the [SensorExporter](https://github.com/viamrobotics/SensorExporter) app and it is your first time you must also do the same procedure.
-
 Open the `point clouds.xcworkspace` file.
 
+### Using the app to get point cloud data
+First ensure that the iPhone the app is running on and the device running the Go client must be running on the same WiFi network.
 
-# Bluetooth
+The `iplidar.json` file 'host' value needs to be entered to run the web ui.
+To get the 'host' value run the app with your phone connected to the computer.
+Running the app from Xcode will return something of the form:
+`2021-11-08 20:48:09.377920-0500 point clouds[31005:3747646] Our IP address: abc.def.ghi.lmn`
+
+Note: The port value is by default set to 3000 on the app side and does not need to be changed in the json file 
+
+### Bluetooth
 
 **Connecting to RPI**
 1. run: `sudo hciconfig hci0 piscan" & 'sudo bluetoothctl`
