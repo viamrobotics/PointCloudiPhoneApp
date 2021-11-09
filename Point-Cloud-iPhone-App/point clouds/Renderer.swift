@@ -350,7 +350,7 @@ class Renderer {
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
-        //r5points()
+        r5points()
         //r3points()
 
         if viewportSizeDidChange {
@@ -360,7 +360,7 @@ class Renderer {
         }
     }
 
-    func r5points() -> String?  {
+    func r5points() -> String  {
         var points = [(0.012568152, -0.09462015, -0.20932771)]
         if let currentFrame = session.currentFrame?.rawFeaturePoints{
             for point in currentFrame.points {
@@ -375,17 +375,32 @@ class Renderer {
             
             return points.description
         }
-        else { return nil }
+        else { return points.description }
     }
     
-    func r3points() -> Array<SIMD3<Float>>? {
-        if let currentFrame = session.currentFrame?.rawFeaturePoints{
-            return currentFrame.points
+    func r3points() -> String {
+        var points : Array<(Double, Double, Double)> = [(0.012568152, -0.09462015, -0.20932771)]
+        guard let currentFrame = session.currentFrame?.rawFeaturePoints else {
+            return points.description
         }
-        else {
-            return nil
+        for point in currentFrame.points {
+            let x_coord : Double = Double(point.x.debugDescription)!
+            let y_coord : Double = Double(point.x.debugDescription)!
+            let z_coord : Double = Double(point.x.debugDescription)!
+            let tup = (x_coord,y_coord,z_coord)
+            points.append(tup)
         }
+        return points.description
     }
+    
+//    func r3points() -> Array<SIMD3<Float>>? {
+//        if let currentFrame = session.currentFrame?.rawFeaturePoints{
+//            return currentFrame.points
+//        }
+//        else {
+//            return nil
+//        }
+//    }
     
     
     // called by 'didSubscribe' method in ViewController
