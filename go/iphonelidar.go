@@ -37,6 +37,7 @@ import (
 type Measurement struct {
 	PointCloud string `json:"poclo"`
 	// rbg        [][3]float64 `json:"rbg"`
+
 }
 
 // IPhone is an iPhone based camera.
