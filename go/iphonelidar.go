@@ -177,12 +177,12 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	//log.Println(sb)
 	points := stringConverter(sb)
 	pc := pointcloud.New()
-	log.Println(points)
+	//log.Println(points)
 	//log.Println("type of pc is: ", reflect.TypeOf(pc))
 	for i := 0; i < len(points); i++ {
-		log.Println(points[i][0])
-		log.Println(points[i][1])
-		log.Println(points[i][2])
+		//log.Println(points[i][0])
+		//log.Println(points[i][1])
+		//log.Println(points[i][2])
 		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
 		if err != nil {
 			//ip.setLastError(err)
@@ -194,15 +194,15 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 		log.Println(pos)
 		return true
 	})
-	log.Println(pc.Size())
-	log.Println("cool")
+	//log.Println(pc.Size())
+	//log.Println("cool")
 	return pc, nil
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	ip.mut.Lock()
 	defer ip.mut.Unlock()
-	log.Println("called Next!")
+	//log.Println("called Next!")
 	pc, err := ip.NextPointCloud(ctx)
 	if err != nil {
 		//ip.setLastError(err)
@@ -250,7 +250,7 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 			set(x, y, color.NRGBA{0, 255, 0, 255})
 		}
 	}
-	log.Println("Next() img")
+	//log.Println("Next() img")
 	return img, nil, nil
 }
 
