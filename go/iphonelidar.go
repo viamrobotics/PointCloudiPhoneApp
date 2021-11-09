@@ -5,11 +5,12 @@ import (
 	//"bufio"
 	"context"
 	"encoding/json"
+	//"reflect"
 	//"errors"
 	"fmt"
 	"image"
 	"image/color"
-	//"io"
+	"io"
 	"log"
 	"math"
 	"net/http"
@@ -40,12 +41,12 @@ type Measurement struct {
 
 // IPhone is an iPhone based camera.
 type IPhoneCam struct {
-	Config *Config // The config struct containing the info necessary to determine what iPhone to connect to.
-	//readCloser io.ReadCloser // The underlying response stream from the iPhone.
+	Config     *Config       // The config struct containing the info necessary to determine what iPhone to connect to.
+	readCloser io.ReadCloser // The underlying response stream from the iPhone.
 	//reader      *bufio.Reader // Read connection to iPhone to pull data from.
-	log       golog.Logger
-	mut       sync.Mutex // Mutex to ensure only one goroutine or thread is reading from reader at a time.
-	lastError error
+	log golog.Logger
+	mut sync.Mutex // Mutex to ensure only one goroutine or thread is reading from reader at a time.
+	//	lastError error
 	//measurement atomic.Value // The latest measurement value read from reader.
 
 	cancelCtx               context.Context
@@ -107,7 +108,7 @@ func New(ctx context.Context, r robot.Robot, config Config, logger golog.Logger)
 
 	err := ip.Config.tryConnection()
 	if err != nil {
-		ip.setLastError(err)
+		//ip.setLastError(err)
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
 
@@ -123,7 +124,7 @@ func New(ctx context.Context, r robot.Robot, config Config, logger golog.Logger)
 			}
 			err := ip.Config.tryConnection()
 			if err != nil {
-				ip.setLastError(err)
+				//ip.setLastError(err)
 				logger.Debugw("error reading iphone data", "error", err)
 				ip.Close()
 			}
@@ -146,21 +147,20 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-	ip.mut.Lock()
-	defer ip.mut.Unlock()
-	if ip.lastError != nil {
-		return nil, ip.lastError
-	}
+
+	// if ip.lastError != nil {
+	// 	return nil, ip.lastError
+	// }
 
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
 	if err != nil {
-		ip.setLastError(err)
+		//ip.setLastError(err)
 		return nil, err
 	}
-	defer resp.Body.Close()
-
+	//defer resp.Body.Close()
+	ip.readCloser = resp.Body
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -172,24 +172,39 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	}
 
 	sb := measurement.PointCloud
+	//log.Println("type of sb is: ", reflect.TypeOf(sb))
+	//log.Println(sb)
 	points := stringConverter(sb)
-
 	pc := pointcloud.New()
+	log.Println(points)
+	//log.Println("type of pc is: ", reflect.TypeOf(pc))
 	for i := 0; i < len(points); i++ {
-		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]).SetIntesnity(uint16(1)))
+		log.Println(points[i][0])
+		log.Println(points[i][1])
+		log.Println(points[i][2])
+		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
 		if err != nil {
-			ip.setLastError(err)
+			//ip.setLastError(err)
 			return nil, err
 		}
 	}
-	log.Println("hi there!")
+	pc.Iterate(func(p pointcloud.Point) bool {
+		pos := p.Position()
+		log.Println(pos)
+		return true
+	})
+	log.Println(pc.Size())
+	log.Println("cool")
 	return pc, nil
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
+	ip.mut.Lock()
+	defer ip.mut.Unlock()
+	log.Println("called Next!")
 	pc, err := ip.NextPointCloud(ctx)
 	if err != nil {
-		ip.setLastError(err)
+		//ip.setLastError(err)
 		return nil, nil, err
 	}
 
@@ -208,8 +223,8 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 		return true
 	})
 
-	width := 800
-	height := 800
+	width := 1920
+	height := 1440
 
 	scale := func(x, y float64) (int, int) {
 		return int(float64(width) * ((x - minX) / (maxX - minX))),
@@ -234,19 +249,22 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 			set(x, y, color.NRGBA{0, 255, 0, 255})
 		}
 	}
-
+	log.Println("Next() img")
 	return img, nil, nil
 }
 
 // returns e.g. = [[1.11 2.22 3.33] [4.44 5.55 666] [7.77 8.88 9.99]]
 func stringConverter(s string) [][]float64 {
-	npointcloud := strings.ReplaceAll(s, "[(", "")
-	nnpointcloud := strings.ReplaceAll(npointcloud, ")]", "")
-	point := strings.Split(nnpointcloud, "),(")
+	ss := s[2:]
+	sss := ss[:len(ss)-2]
+
+	point := strings.Split(sss, "), (")
+
 	l0 := make([][]float64, len(point))
 	for i := 0; i < len(point); i++ {
 		l := make([]float64, 3)
-		new_point := strings.Split(point[i], ",")
+
+		new_point := strings.Split(point[i], ", ")
 		for j := 0; j < len(new_point); j++ {
 			if j == 0 {
 				if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
@@ -265,20 +283,18 @@ func stringConverter(s string) [][]float64 {
 			}
 		}
 		l0[i] = l
-		//fmt.Printf("type of l: %T\n", l)
 	}
-	//fmt.Println(l0)
 	return l0
 }
 
-func (ip *IPhoneCam) setLastError(err error) {
-	ip.mut.Lock()
-	defer ip.mut.Unlock()
-	ip.lastError = err
-}
+// func (ip *IPhoneCam) setLastError(err error) {
+// 	ip.mut.Lock()
+// 	defer ip.mut.Unlock()
+// 	ip.lastError = err
+// }
 
 func (ip *IPhoneCam) Close() error {
 	ip.cancelFn()
 	ip.activeBackgroundWorkers.Wait()
-	return nil
+	return ip.readCloser.Close()
 }
