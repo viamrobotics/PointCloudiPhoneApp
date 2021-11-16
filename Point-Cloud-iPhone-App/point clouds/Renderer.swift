@@ -350,8 +350,7 @@ class Renderer {
         updateSharedUniforms(frame: currentFrame)
         updateAnchors(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
-        r5points()
-        //r3points()
+        // rbgpoints(frame: currentFrame)
 
         if viewportSizeDidChange {
             viewportSizeDidChange = false
@@ -359,20 +358,23 @@ class Renderer {
             updateImagePlane(frame: currentFrame)
         }
     }
+    
+    func rbgpoints(frame: ARFrame){
+        print(frame.capturedImage)
+    }
 
     func r5points() -> String  {
         var points = [(0.012568152, -0.09462015, -0.20932771)]
         if let currentFrame = session.currentFrame?.rawFeaturePoints{
             for point in currentFrame.points {
                 let x_coord : Double = Double(point.x.debugDescription)!
-                let y_coord : Double = Double(point.x.debugDescription)!
-                let z_coord : Double = Double(point.x.debugDescription)!
+                let y_coord : Double = Double(point.y.debugDescription)!
+                let z_coord : Double = Double(point.z.debugDescription)!
                 let tup = (x_coord,y_coord,z_coord)
                 points.append(tup)
             }
             //print(type(of: points)) -> Array<(Double, Double, Double)>
             // remove first value of list here
-            
             return points.description
         }
         else { return points.description }
@@ -392,16 +394,6 @@ class Renderer {
         }
         return points.description
     }
-    
-//    func r3points() -> Array<SIMD3<Float>>? {
-//        if let currentFrame = session.currentFrame?.rawFeaturePoints{
-//            return currentFrame.points
-//        }
-//        else {
-//            return nil
-//        }
-//    }
-    
     
     // called by 'didSubscribe' method in ViewController
     // for bluetooth functionality
