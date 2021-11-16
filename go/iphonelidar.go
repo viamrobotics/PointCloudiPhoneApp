@@ -4,6 +4,7 @@ package iphonelidar
 //ToDos:
 // exit gracefully when iphone prematurely closes connection
 // add in code to incorporate rbg data
+// remove golog.logger if unnecessary after both are completed
 
 import (
 	"context"
