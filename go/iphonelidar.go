@@ -1,5 +1,9 @@
-// Package iphonelidar provides a command for viewing the output of iPhone's LiDAR camera
+// Package iphonelidar provides a command for viewing the output of iPhone's camera
 package iphonelidar
+
+//ToDos:
+// exit gracefully when iphone prematurely closes connection
+// add in code to incorporate rbg data
 
 import (
 	"context"
@@ -7,7 +11,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"math"
 	"net/http"
 	"path"
@@ -21,9 +24,10 @@ import (
 	"go.viam.com/core/registry"
 	"go.viam.com/core/robot"
 
+	"go.viam.com/utils"
+
 	"github.com/edaniels/golog"
 	"github.com/mitchellh/mapstructure"
-	"go.viam.com/utils"
 )
 
 // A Measurement is a struct representing the data collected by the iPhone using the point clouds iPhone app.
@@ -42,15 +46,15 @@ type IPhoneCam struct {
 	activeBackgroundWorkers sync.WaitGroup
 }
 
+type Config struct {
+	Host string // The host name of the iPhone being connected to.
+	Port int    // The port to connect to.
+}
+
 type iPConfig struct {
 	Host string `json:"host"` // The host name of the iPhone being connected to.
 	Port int    `json:"port"` // The port to connect to.
 
-}
-
-type Config struct {
-	Host string // The host name of the iPhone being connected to.
-	Port int    // The port to connect to.
 }
 
 const (
@@ -93,12 +97,12 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 		activeBackgroundWorkers: sync.WaitGroup{},
 	}
 
-	err := ip.Config.tryConnection()
+	err := ip.tryConnection()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
 
-	// Have a thread in the background constantly reading the latest camera readings from the iPhone???
+	// Have a thread in the background constantly reading the latest camera readings from the iPhone.
 	ip.activeBackgroundWorkers.Add(1)
 	utils.PanicCapturingGo(func() {
 		defer ip.activeBackgroundWorkers.Done()
@@ -108,26 +112,26 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 				return
 			default:
 			}
-			err := ip.Config.tryConnection()
+			err := ip.tryConnection()
 			if err != nil {
-				logger.Debugw("error reading iphone data", "error", err)
-				ip.Close()
+				ip.log.Errorw("error reading iPhone's data", "error", err)
+				//fmt.Errorf("error reading iPhone's data", "error", err)
 			}
 		}
 	})
 	return &ip, nil
 }
 
-func (c *Config) tryConnection() error {
-	portString := strconv.Itoa(c.Port)
-	url := path.Join(c.Host+":"+portString, "/hello")
+func (ip *IPhoneCam) tryConnection() error {
+	portString := strconv.Itoa(ip.Config.Port)
+	url := path.Join(ip.Config.Host+":"+portString, "/hello")
 	resp, err := http.Get("http://" + url)
-	if err != nil {
-		return err
-	}
 
 	defer resp.Body.Close()
 
+	if err != nil {
+		return err
+	}
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -135,34 +139,38 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
+	//log.Println("we have called the NextPointCloud() function")
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
+
+	defer resp.Body.Close()
+
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
 
-	//We read the response body on the line below.
+	//We read the response body below.
 	var measurement Measurement
 	errr := json.NewDecoder(resp.Body).Decode(&measurement)
 	if errr != nil {
-		log.Fatalln(err)
+		return nil, errr
 	}
 
 	sb := measurement.PointCloud
 	points := stringConverter(sb)
 	pc := pointcloud.New()
+
 	for i := 0; i < len(points); i++ {
 		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	return pc, nil
 }
 
