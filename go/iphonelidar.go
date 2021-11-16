@@ -114,8 +114,8 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 			}
 			err := ip.tryConnection()
 			if err != nil {
-				ip.log.Errorw("error reading iPhone's data", "error", err)
-				//fmt.Errorf("error reading iPhone's data", "error", err)
+				//ip.log.Errorw("error reading iPhone's data", "error", err)
+				fmt.Errorf("error reading iPhone's data", "error", err)
 			}
 		}
 	})
