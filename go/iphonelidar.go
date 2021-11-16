@@ -2,9 +2,7 @@
 package iphonelidar
 
 //ToDos:
-// exit gracefully when iphone prematurely closes connection
 // add in code to incorporate rbg data
-// remove golog.logger if unnecessary after both are completed
 
 import (
 	"context"
@@ -98,7 +96,7 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 		activeBackgroundWorkers: sync.WaitGroup{},
 	}
 
-	err := ip.tryConnection()
+	err := ip.Config.tryConnection()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to iphone %s on port %d: %v", config.Host, config.Port, err)
 	}
@@ -113,7 +111,7 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 				return
 			default:
 			}
-			err := ip.tryConnection()
+			err := ip.Config.tryConnection()
 			if err != nil {
 				//ip.log.Errorw("error reading iPhone's data", "error", err)
 				fmt.Errorf("error reading iPhone's data", "error", err)
@@ -123,16 +121,17 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 	return &ip, nil
 }
 
-func (ip *IPhoneCam) tryConnection() error {
-	portString := strconv.Itoa(ip.Config.Port)
-	url := path.Join(ip.Config.Host+":"+portString, "/hello")
+func (c *Config) tryConnection() error {
+	portString := strconv.Itoa(c.Port)
+	url := path.Join(c.Host+":"+portString, "/hello")
 	resp, err := http.Get("http://" + url)
-
-	defer resp.Body.Close()
 
 	if err != nil {
 		return err
 	}
+
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -145,11 +144,12 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
 
-	defer resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}
+
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("received non-200 status code when connecting: %d", resp.StatusCode)
 	}
@@ -171,7 +171,6 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 			return nil, err
 		}
 	}
-
 	return pc, nil
 }
 
