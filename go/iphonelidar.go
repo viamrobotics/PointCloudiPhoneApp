@@ -3,6 +3,7 @@ package iphonelidar
 
 //ToDos:
 // add in code to incorporate rbg data
+// fix display because its weird
 
 import (
 	"context"
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"log"
 	"math"
 	"net/http"
 	"path"
@@ -175,6 +177,7 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
+	//log.Println("we have called the Next() function")
 	ip.mut.Lock()
 	defer ip.mut.Unlock()
 
