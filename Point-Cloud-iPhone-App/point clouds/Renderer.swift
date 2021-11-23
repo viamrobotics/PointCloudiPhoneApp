@@ -270,12 +270,13 @@ class Renderer {
         var points = [(0.012568152, -0.09462015, -0.20932771)]
         //var points = [(0.012568152, -0.09462015, -0.20932771, 0.012568152, -0.09462015, -0.20932771, 0.012568152)]
         if let currentFrame = session.currentFrame{
+            let sampler = try? CapturedImageSampler(frame: currentFrame)
             if let cloud = currentFrame.rawFeaturePoints?.points{
                 for point in cloud {
                     let x_coord : Double = Double(point.x.debugDescription)!
                     let y_coord : Double = Double(point.y.debugDescription)!
                     let z_coord : Double = Double(point.z.debugDescription)!
-                    let sampler = try? CapturedImageSampler(frame: currentFrame)
+                    
                     let color = sampler!.getColor(atX: 0, y: 0)
                     //let color = sampler!.getColor(atX: x_coord / currentFrame.camera.imageResolution.width,
                                                  // y: y_coord / currentFrame.camera.imageResolution.height)
@@ -290,6 +291,7 @@ class Renderer {
 //                    print(" ")
                     points.append(tup)
                 }
+                sampler!.freeMe()
                 return points.description
             }
             else { return points.description }
