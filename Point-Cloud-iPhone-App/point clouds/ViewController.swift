@@ -35,9 +35,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
     override func viewDidLoad() {
         
-
-        
-        
         //instantiate peripheralManager
         //peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
 
@@ -67,8 +64,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
             //start server
             let _ = Server(renderer: renderer, refreshRateHz: 50, port: 3000)
         }
-        
-        
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -93,8 +88,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
         // Pause the view's session
         session.pause()
-        
-
     }
 
     // MARK: - MTKViewDelegate
@@ -195,9 +188,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
 
     // setting up out initial services and characteristics to broadcast
     private func setupPeripheral(){
-
         //build our service
-
         // CBMutableCharacteristic instantiation
         let transferCharacteristic = CBMutableCharacteristic(type: characteristicUUID, properties: [.notify, .writeWithoutResponse], value: nil, permissions: [.readable, .writeable])
 
@@ -216,7 +207,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     }
 
     // start advertising our presence
-    // iphone should show up on RPI as 'LiDAR Phone pc'
     private func startad(){
         peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [serviceUUID],
                                             CBAdvertisementDataLocalNameKey: advertisementDataLocalNameKey])
@@ -256,7 +246,6 @@ extension ViewController: CBPeripheralManagerDelegate{
         //print(renderer.pointcloud())
         
     }
-    
     // MARK: - sending data over BLE
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         os_log("central subscribed to characteristic: \(characteristic)")
@@ -274,7 +263,6 @@ extension ViewController: CBPeripheralManagerDelegate{
         sendData()
     }
     
-
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
         os_log("central unsubscribed from characteristic")
         connectedCentral = nil
