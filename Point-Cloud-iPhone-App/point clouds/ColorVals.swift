@@ -18,13 +18,13 @@ import Accelerate
 ///            and will cause a lot of headaches if 2 instances try to simultaneously access it.
 ///            If you need multi-threading, make the shared buffer an instance property instead.
 ///            Just remember to release it when you're done with it.
-public class CapturedImageSampler {
+class CapturedImageSampler {
     
     /// This is the format of the pixel buffer included with the ARFrame.
-    static let expectedPixelFormat: OSType = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+    private static let expectedPixelFormat: OSType = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
     
     /// This is the YCbCr to RGB conversion opaque object used by the convert function.
-    static var conversionMatrix: vImage_YpCbCrToARGB = {
+    private static var conversionMatrix: vImage_YpCbCrToARGB = {
         var pixelRange = vImage_YpCbCrPixelRange(Yp_bias: 0, CbCr_bias: 128, YpRangeMax: 255, CbCrRangeMax: 255, YpMax: 255, YpMin: 1, CbCrMax: 255, CbCrMin: 0)
         var matrix = vImage_YpCbCrToARGB()
         vImageConvert_YpCbCrToARGB_GenerateConversion(kvImage_YpCbCrToARGBMatrix_ITU_R_709_2, &pixelRange, &matrix, kvImage420Yp8_CbCr8, kvImageARGB8888, UInt32(kvImageNoFlags))
@@ -34,10 +34,10 @@ public class CapturedImageSampler {
     /// Since we'll generally be dealing with buffers of the same size, save processsing power
     /// by re-using a single, static one, rather than allocating a new buffer each time. This
     /// will be set by the initializer of the first instance of `CapturedImageSampler`.
-    var rawRGBBuffer: UnsafeMutableRawPointer!
+    //var rawRGBBuffer: UnsafeMutableRawPointer!
     
     /// Store the size information of the buffer.
-    static var rawBufferSize: CGSize = .zero
+    private static var rawBufferSize: CGSize = .zero
     
     /// The errors which can be produced.
     enum PixelError: Error {
@@ -90,26 +90,23 @@ public class CapturedImageSampler {
         // Convert the individual planes to the vImage_Buffer type via a convenience method on the size.
         var yBuffer = ySize.buffer(with: rawyBuffer)
         var cbcrBuffer = cSize.buffer(with: rawcbcrBuffer)
+    
         
-        // Check to see if the static RGB buffer is the correct size.
-        if ySize.size != CapturedImageSampler.rawBufferSize && CapturedImageSampler.rawRGBBuffer != nil {
-            // It's the wrong size. Free it and nil the reference so we can recreate it below.
-            free(CapturedImageSampler.rawRGBBuffer)
-            CapturedImageSampler.rawRGBBuffer = nil
-        }
-        
-        // Check to see if the static buffer exists.
-        if CapturedImageSampler.rawRGBBuffer == nil {
-            // If it doesn't exist, create it. Size = width * height * 1 byte per channel (ARGB).
-            guard let buffer = malloc(ySize.width * ySize.height * 4) else {
-                print("ERROR: Unable to allocate space for RGB buffer.")
-                throw PixelError.systemFailure
-            }
-            CapturedImageSampler.rawRGBBuffer = buffer
-        }
+        let buffer = malloc(ySize.width * ySize.height * 4)
+        //free(CapturedImageSampler.rawRGBBuffer)
+//        if CapturedImageSampler.rawRGBBuffer == nil {
+//            // If it doesn't exist, create it. Size = width * height * 1 byte per channel (ARGB).
+//            guard let buffer = malloc(ySize.width * ySize.height * 4) else {
+//                print("ERROR: Unable to allocate space for RGB buffer.")
+//                throw PixelError.systemFailure
+//            }
+//            CapturedImageSampler.rawRGBBuffer = buffer
+//        }
         
         // At this point we know the static buffer exists. Use it to create the target RGB vImage_Buffer.
-        var rgbBuffer: vImage_Buffer = vImage_Buffer(data: CapturedImageSampler.rawRGBBuffer, height: ySize.uHeight, width: ySize.uWidth, rowBytes: ySize.width * 4)
+        var rgbBuffer: vImage_Buffer = vImage_Buffer(data: buffer, height: ySize.uHeight, width: ySize.uWidth, rowBytes: ySize.width * 4)
+        
+//        var rgbBuffer: vImage_Buffer = vImage_Buffer(data: CapturedImageSampler.rawRGBBuffer, height: ySize.uHeight, width: ySize.uWidth, rowBytes: ySize.width * 4)
         
         // Put everything together to convert the Y and CbCr planes into a single, interleaved ARGB buffer.
         // Note: The declared constants for kvImageFlags are the wrong type: they're all Int, but should be UInt32.
@@ -131,6 +128,7 @@ public class CapturedImageSampler {
         // Store the dimensions of the buffer so we can do offset math and check that our static buffer is
         // the correct size for the next instance of this class.
         rgbSize = BufferDimension(width: ySize.width, height: ySize.height, bytesPerRow: ySize.width * 4)
+        buffer?.deallocate()
     }
     
     /// Get the RGB color of the pixel at the specified coordinates.
@@ -143,7 +141,7 @@ public class CapturedImageSampler {
     ///         target point by the width and height of the image, respectively. This is done so
     ///         that there is agreement between the sample and the displayed image, even if the
     ///         latter is scaled up or down.
-    func getColor(atX x: CGFloat, y: CGFloat) -> UIColor? {
+    func getColor(atX x: CGFloat, y: CGFloat) -> (Double, Double, Double, Double)? {
 
         guard x >= 0 && x < 1 && y >= 0 && y < 1 else {
             // The coordinate is outside the valid range.
@@ -169,8 +167,12 @@ public class CapturedImageSampler {
         let g = CGFloat(rgb[index + 2]) / 255.0
         let b = CGFloat(rgb[index + 3]) / 255.0
         
-        // Return the resulting color.
-        return UIColor(red: r, green: g, blue: b, alpha: a)
+        // Return the resulting color as a tuple of Doubles.
+        return (Double(r), Double(g), Double(b), Double(a))
+    }
+    
+    func freeMe() {
+        rgb.deallocate()
     }
     
     /// This helper method prints out a bunch of information about a `CVPixelBuffer`. Call this
