@@ -15,7 +15,6 @@ struct Measurement: Codable {
     // Point cloud data
     var poclo: String?
     // e.g. [(a,b,c), (d,e,f), (g,h,i)] where a ... i are of type float
-    // we will proceed by assinging a .. i an rbg value
 }
 
 class Server {
