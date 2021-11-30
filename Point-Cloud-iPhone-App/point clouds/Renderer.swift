@@ -269,9 +269,13 @@ class Renderer {
 //        print(" ")
         var points = [(0.012568152, -0.09462015, -0.20932771)]
         //var points = [(0.012568152, -0.09462015, -0.20932771, 0.012568152, -0.09462015, -0.20932771, 0.012568152)]
+        
         if let currentFrame = session.currentFrame{
-            let sampler = try? CapturedImageSampler(frame: currentFrame)
             if let cloud = currentFrame.rawFeaturePoints?.points{
+                
+                let globalQueue = DispatchQueue.global()
+                
+                let sampler = try? CapturedImageSampler(frame: currentFrame)
                 for point in cloud {
                     let x_coord : Double = Double(point.x.debugDescription)!
                     let y_coord : Double = Double(point.y.debugDescription)!
@@ -291,7 +295,7 @@ class Renderer {
 //                    print(" ")
                     points.append(tup)
                 }
-                sampler!.freeMe()
+                //`sampler!.freeMe()
                 return points.description
             }
             else { return points.description }
