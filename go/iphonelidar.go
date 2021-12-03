@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
+	//"log"
 	"math"
 	"net/http"
 	"path"
@@ -30,6 +30,12 @@ import (
 	"github.com/edaniels/golog"
 	"github.com/mitchellh/mapstructure"
 )
+
+// Vec3 is a three-dimensional vector.
+type Vec3 r3.Vector
+
+// Vec3s is a series of three-dimensional vectors.
+type Vec3s []
 
 // A Measurement is a struct representing the data collected by the iPhone using the point clouds iPhone app.
 type Measurement struct {
@@ -168,7 +174,10 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	pc := pointcloud.New()
 
 	for i := 0; i < len(points); i++ {
-		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
+		err := pc.Set(pointcloud.NewColoredPoint(points[i][0], points[i][1], points[i][2],
+												 color.NRGBA{uint8(points[i][3] / 0x101),
+															 uint8(points[i][4] / 0x101),
+															 uint8(points[i][5] / 0x101), 255}))
 		if err != nil {
 			return nil, err
 		}
@@ -217,6 +226,8 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	}
 
 	pc.Iterate(func(p pointcloud.Point) bool {
+		// set(p.Position().X, p.Position().Y, p.Position().Z)??
+		// read more from core
 		set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
 		return true
 	})
@@ -224,6 +235,7 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	centerSize := .1
 	for x := -1 * centerSize; x < centerSize; x += .01 {
 		for y := -1 * centerSize; y < centerSize; y += .01 {
+			// needs to be changed here as well
 			set(x, y, color.NRGBA{0, 255, 0, 255})
 		}
 	}
@@ -243,23 +255,11 @@ func stringConverter(s string) [][]float64 {
 
 		new_point := strings.Split(point[i], ", ")
 		for j := 0; j < len(new_point); j++ {
-			if j == 0 {
-				if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
-					l[0] = s
-				}
+			if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
+				l[j] = s
 			}
-			if j == 1 {
-				if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
-					l[1] = s
-				}
-			}
-			if j == 2 {
-				if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
-					l[2] = s
-				}
-			}
+			l0[i] = l
 		}
-		l0[i] = l
 	}
 	return l0
 }
