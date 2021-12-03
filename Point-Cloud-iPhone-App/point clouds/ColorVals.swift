@@ -26,8 +26,10 @@ class CapturedImageSampler {
         return matrix
     }()
     
-    /// Store the size information of the buffer.
-    private static var rawBufferSize: CGSize = .zero
+    /// Since we'll generally be dealing with buffers of the same size, save processsing power
+    /// by re-using a single, static one, rather than allocating a new buffer each time. This
+    /// will be set by the initializer of the first instance of `CapturedImageSampler`.
+    var rawRGBBuffer: UnsafeMutableRawPointer!
     
     /// The errors which can be produced.
     enum PixelError: Error {
@@ -80,19 +82,19 @@ class CapturedImageSampler {
         // Convert the individual planes to the vImage_Buffer type via a convenience method on the size.
         var yBuffer = ySize.buffer(with: rawyBuffer)
         var cbcrBuffer = cSize.buffer(with: rawcbcrBuffer)
-    
         
         guard let buffer = malloc(ySize.width * ySize.height * 4) else {
             print("ERROR: Unable to allocate space for RGB buffer.")
             throw PixelError.systemFailure
         }
+        self.rawRGBBuffer = buffer
         
         // At this point we know the static buffer exists. Use it to create the target RGB vImage_Buffer.
-        var rgbBuffer: vImage_Buffer = vImage_Buffer(data: buffer, height: ySize.uHeight, width: ySize.uWidth, rowBytes: ySize.width * 4)
+        var rgbBuffer: vImage_Buffer = vImage_Buffer(data: self.rawRGBBuffer, height: ySize.uHeight, width: ySize.uWidth, rowBytes: ySize.width * 4)
         
         // Put everything together to convert the Y and CbCr planes into a single, interleaved ARGB buffer.
         // Note: The declared constants for kvImageFlags are the wrong type: they're all Int, but should be UInt32.
-        // I've filed a radar about it.
+        //       I've filed a radar about it.
         let error = vImageConvert_420Yp8_CbCr8ToARGB8888(&yBuffer, &cbcrBuffer, &rgbBuffer, &CapturedImageSampler.conversionMatrix, nil, 255, UInt32(kvImageNoFlags))
         
         // Check to see that the returned error type was No Error.
@@ -106,13 +108,10 @@ class CapturedImageSampler {
         
         // All we want is a buffer of bytes, we'll do the address math manually.
         rgb = unsafeBitCast(rgbBuffer.data, to: UnsafePointer<UInt8>.self)
-        print("hi")
         
         // Store the dimensions of the buffer so we can do offset math and check that our static buffer is
         // the correct size for the next instance of this class.
         rgbSize = BufferDimension(width: ySize.width, height: ySize.height, bytesPerRow: ySize.width * 4)
-        //buffer.deallocate()
-        free(buffer)
     }
     
     /// Get the RGB color of the pixel at the specified coordinates.
@@ -151,13 +150,13 @@ class CapturedImageSampler {
         let g = CGFloat(rgb[index + 2]) / 255.0
         let b = CGFloat(rgb[index + 3]) / 255.0
         
-        // Return the resulting color as a tuple of Doubles.
+        // Return the resulting color.
         return (Double(r), Double(g), Double(b), Double(a))
     }
     
-//    func freeMe() {
-//        rgb.deallocate()
-//    }
+    func freeMe() {
+        self.rgb.deallocate()
+    }
     
     /// This helper method prints out a bunch of information about a `CVPixelBuffer`. Call this
     /// to see what is going on if you're having an incorrect pixel format error.
@@ -257,5 +256,3 @@ struct BufferDimension {
         return vImage_Buffer(data: data, height: uHeight, width: uWidth, rowBytes: bytesPerRow)
     }
 }
-
-
