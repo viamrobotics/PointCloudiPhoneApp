@@ -262,47 +262,41 @@ class Renderer {
     }
     
     func rbgpoints() -> String {
-
-//        let sampler = try? CapturedImageSampler(frame: frame)
-//        let color = sampler!.getColor(atX: 0, y: 0)
-//        print(color.debugDescription)
-//        print(" ")
-        var points = [(0.012568152, -0.09462015, -0.20932771)]
-        //var points = [(0.012568152, -0.09462015, -0.20932771, 0.012568152, -0.09462015, -0.20932771, 0.012568152)]
-        
+    
+        var points = [(0.012568152, -0.09462015, -0.20932771, 0.012568152, 0.09462015, 0.20932771)]
+    
         if let currentFrame = session.currentFrame{
             if let cloud = currentFrame.rawFeaturePoints?.points{
-                
-                let globalQueue = DispatchQueue.global()
-                
                 let sampler = try? CapturedImageSampler(frame: currentFrame)
                 for point in cloud {
+                    
                     let x_coord : Double = Double(point.x.debugDescription)!
                     let y_coord : Double = Double(point.y.debugDescription)!
                     let z_coord : Double = Double(point.z.debugDescription)!
                     
-                    let color = sampler!.getColor(atX: 0, y: 0)
-                    //let color = sampler!.getColor(atX: x_coord / currentFrame.camera.imageResolution.width,
-                                                 // y: y_coord / currentFrame.camera.imageResolution.height)
-                    print(color)
-                    //var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-                    //color!.getRed(&r, green: &g, blue: &b, alpha: &a)
-                    let tup = (x_coord,y_coord,z_coord)
-                    //let tup = (x_coord,y_coord,z_coord,Double(r),Double(g),Double(b),Double(a))
-//                    print(tup)
-//                    print(" ")
-//                    print(" ")
-//                    print(" ")
+                    var coord = currentFrame.camera.projectPoint(point, orientation: .portrait, viewportSize: currentFrame.camera.imageResolution)
+                    var xc = coord.x/currentFrame.camera.imageResolution.width
+                    var yc = coord.y/currentFrame.camera.imageResolution.height
+                    //let color = sampler!.getColor(atX: xc, y: yc)
+                    
+                    let color = sampler!.getColor(atX: abs(x_coord/currentFrame.camera.imageResolution.width), y: abs(y_coord/currentFrame.camera.imageResolution.height))
+                    
+                    let tup = (x_coord, y_coord, z_coord,
+                               color!.0, color!.1, color!.2)
+                    //print(tup)
                     points.append(tup)
                 }
-                //`sampler!.freeMe()
-                return points.description
+                sampler!.freeMe()
+                if points.count > 1{
+                    // get rid of first value here
+                    return points.description
+                }
+                else { return points.description }
             }
             else { return points.description }
-
         }
         else { return points.description }
-}
+    }
 
     func r5points() -> String  {
         var points = [(0.012568152, -0.09462015, -0.20932771)]
