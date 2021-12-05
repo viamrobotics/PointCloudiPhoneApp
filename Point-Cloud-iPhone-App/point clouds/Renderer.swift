@@ -252,7 +252,7 @@ class Renderer {
         updateSharedUniforms(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
         //rbgpoints(frame: currentFrame)
-        rbgpoints()
+        //rbgpoints()
 
         if viewportSizeDidChange {
             viewportSizeDidChange = false
@@ -274,16 +274,11 @@ class Renderer {
                     let y_coord : Double = Double(point.y.debugDescription)!
                     let z_coord : Double = Double(point.z.debugDescription)!
                     
-                    var coord = currentFrame.camera.projectPoint(point, orientation: .portrait, viewportSize: currentFrame.camera.imageResolution)
-                    var xc = coord.x/currentFrame.camera.imageResolution.width
-                    var yc = coord.y/currentFrame.camera.imageResolution.height
-                    //let color = sampler!.getColor(atX: xc, y: yc)
-                    
                     let color = sampler!.getColor(atX: abs(x_coord/currentFrame.camera.imageResolution.width), y: abs(y_coord/currentFrame.camera.imageResolution.height))
                     
                     let tup = (x_coord, y_coord, z_coord,
                                color!.0, color!.1, color!.2)
-                    //print(tup)
+                    
                     points.append(tup)
                 }
                 sampler!.freeMe()
