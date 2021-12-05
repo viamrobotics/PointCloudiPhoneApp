@@ -118,7 +118,7 @@ class CapturedImageSampler {
     ///
     /// - Parameter atX: A scalar float in the range 0.0..<1.0.
     /// - Parameter y: A scalar float in the range 0.0..<1.0.
-    /// - Returns: An optional UIColor, based on whether or not valid coordinates were supplied.
+    /// - Returns: An optional tuple of doubles, based on whether or not valid coordinates were supplied.
     ///
     /// - Note: The scalar values for x and y are easily obtained by dividing the x and y of your
     ///         target point by the width and height of the image, respectively. This is done so
