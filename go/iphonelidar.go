@@ -1,4 +1,4 @@
-// Package iphonelidar provides a command for viewing the output of iPhone's camera
+// Package iphonelidar provides a command for viewing the output of an iPhone's camera
 package iphonelidar
 
 //ToDos:
@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	//"log"
+	"log"
 	"math"
 	"net/http"
 	"path"
@@ -31,16 +31,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// Vec3 is a three-dimensional vector.
-type Vec3 r3.Vector
-
-// Vec3s is a series of three-dimensional vectors.
-type Vec3s []
-
 // A Measurement is a struct representing the data collected by the iPhone using the point clouds iPhone app.
 type Measurement struct {
 	PointCloud string `json:"poclo"`
-	// rbg        [][3]float64 `json:"rbg"`
 }
 
 // IPhone is an iPhone based camera.
@@ -69,7 +62,7 @@ const (
 	modelname   = "iphonelidar"
 )
 
-// init registers the iphone lidar camera.
+// init registers the iphone camera.
 func init() {
 	registry.RegisterCamera(modelname, registry.Camera{Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
 		iCam, err := New(ctx, Config{Host: c.ConvertedAttributes.(*iPConfig).Host, Port: c.ConvertedAttributes.(*iPConfig).Port}, logger)
@@ -121,7 +114,6 @@ func New(ctx context.Context, config Config, logger golog.Logger) (camera.Camera
 			}
 			err := ip.Config.tryConnection()
 			if err != nil {
-				//ip.log.Errorw("error reading iPhone's data", "error", err)
 				fmt.Errorf("error reading iPhone's data", "error", err)
 			}
 		}
@@ -147,7 +139,7 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-	//log.Println("we have called the NextPointCloud() function")
+	log.Println("we have called the NextPointCloud() function")
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
@@ -170,14 +162,14 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	}
 
 	sb := measurement.PointCloud
+	log.Println("this is sb: ", sb)
 	points := stringConverter(sb)
+	log.Println("this is points: ", points)
+	log.Println(" ")
 	pc := pointcloud.New()
 
 	for i := 0; i < len(points); i++ {
-		err := pc.Set(pointcloud.NewColoredPoint(points[i][0], points[i][1], points[i][2],
-												 color.NRGBA{uint8(points[i][3] / 0x101),
-															 uint8(points[i][4] / 0x101),
-															 uint8(points[i][5] / 0x101), 255}))
+		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +178,7 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
-	//log.Println("we have called the Next() function")
+	log.Println("we have called the Next() function")
 	ip.mut.Lock()
 	defer ip.mut.Unlock()
 
@@ -226,8 +218,6 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	}
 
 	pc.Iterate(func(p pointcloud.Point) bool {
-		// set(p.Position().X, p.Position().Y, p.Position().Z)??
-		// read more from core
 		set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
 		return true
 	})
@@ -235,7 +225,6 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	centerSize := .1
 	for x := -1 * centerSize; x < centerSize; x += .01 {
 		for y := -1 * centerSize; y < centerSize; y += .01 {
-			// needs to be changed here as well
 			set(x, y, color.NRGBA{0, 255, 0, 255})
 		}
 	}
@@ -251,7 +240,7 @@ func stringConverter(s string) [][]float64 {
 
 	l0 := make([][]float64, len(point))
 	for i := 0; i < len(point); i++ {
-		l := make([]float64, 3)
+		l := make([]float64, 6)
 
 		new_point := strings.Split(point[i], ", ")
 		for j := 0; j < len(new_point); j++ {
