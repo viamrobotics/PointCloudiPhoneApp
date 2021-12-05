@@ -61,10 +61,10 @@ class Server {
         }
         server["/measurement"] = { _ in
             if let meas = self.getLatestMeasurement() {
-                os_log("2")
+                //os_log("called /measurement, result: \(meas)")
                 return HttpResponse.ok(.data(meas, contentType: "application/json"))
             } else {
-                os_log("3")
+                //os_log("couldn't get latest measurement")
                 return HttpResponse.badRequest(.text("couldn't get latest measurement"))
             }
         }
@@ -98,7 +98,7 @@ class Server {
     
     func getLatestMeasurement() -> Data? {
         var rawMeas = Measurement()
-        rawMeas.poclo = renderer.r5points()
+        rawMeas.poclo = renderer.rbgpoints()
         do {
             let data = try encoder.encode(rawMeas)
             return data
