@@ -70,7 +70,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
         super.viewWillAppear(animated)
 
         // Create a session configuration
-        let configuration = ARWorldTrackingConfiguration()
+        let configuration = AROrientationTrackingConfiguration()
+//        let configuration = ARWorldTrackingConfiguration()
 
         // Run the view's session
         session.run(configuration)
@@ -100,13 +101,6 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     func draw(in view: MTKView) {
         renderer.update()
     }
-    
-    // MARK: - renderer call func for pointclouds
-    
-    func callme() -> String {
-        return renderer.r5points()
-    }
-
 
     // MARK: - Start of Bluetooth code
     // sending data when appropriate
