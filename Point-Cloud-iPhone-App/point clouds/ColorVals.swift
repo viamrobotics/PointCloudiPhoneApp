@@ -120,15 +120,11 @@ class CapturedImageSampler {
     /// - Parameter y: A scalar float in the range 0.0..<1.0.
     /// - Returns: An optional tuple of doubles, based on whether or not valid coordinates were supplied.
     ///
-    /// - Note: The scalar values for x and y are easily obtained by dividing the x and y of your
-    ///         target point by the width and height of the image, respectively. This is done so
-    ///         that there is agreement between the sample and the displayed image, even if the
-    ///         latter is scaled up or down.
-    func getColor(atX x: CGFloat, y: CGFloat) -> (Double, Double, Double, Double)? {
+    func getColor(atX x: CGFloat, y: CGFloat) -> (Double, Double, Double, Double) {
 
         guard x >= 0 && x < 1 && y >= 0 && y < 1 else {
             // The coordinate is outside the valid range.
-            return nil
+            return (20.0, 20.0, 20.0, 20.0)
         }
         
         // The buffer order is horizontally flipped from the displayed orientation, so we'll
@@ -145,10 +141,10 @@ class CapturedImageSampler {
         let index = ty * rgbSize.bytesPerRow + tx * 4
         
         // Grab the ARGB bytes and convert them into scalar CGFloats.
-        let a = CGFloat(rgb[index]) / 255.0
-        let r = CGFloat(rgb[index + 1]) / 255.0
-        let g = CGFloat(rgb[index + 2]) / 255.0
-        let b = CGFloat(rgb[index + 3]) / 255.0
+        let a = CGFloat(rgb[index])// / 255.0
+        let r = CGFloat(rgb[index + 1])// / 255.0
+        let g = CGFloat(rgb[index + 2])// / 255.0
+        let b = CGFloat(rgb[index + 3])// / 255.0
         
         // Return the resulting color.
         return (Double(r), Double(g), Double(b), Double(a))
