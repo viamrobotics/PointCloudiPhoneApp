@@ -29,8 +29,8 @@ Running the app from Xcode will return something of the form:
 Note: The port value is by default set to 3000 on the app side and does not need to be changed in the json file
 
 ### Using the app to get point cloud data
-First ensure that the iPhone and the device running the Go client are on the same WiFi network.
-Open the app and then run the client code.
+1. First ensure that the iPhone and the device running the Go client are on the same WiFi network.
+2. Open the app and then run the client code.
 
 ### ARKit
 The point clouds app uses ARKit5 to get point cloud data.
