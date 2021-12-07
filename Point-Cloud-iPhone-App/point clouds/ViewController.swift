@@ -70,8 +70,8 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
         super.viewWillAppear(animated)
 
         // Create a session configuration
-        let configuration = AROrientationTrackingConfiguration()
-//        let configuration = ARWorldTrackingConfiguration()
+//        let configuration = AROrientationTrackingConfiguration()
+        let configuration = ARWorldTrackingConfiguration()
 
         // Run the view's session
         session.run(configuration)
