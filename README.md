@@ -35,7 +35,8 @@ Open the app and then run the client code.
 ### ARKit
 The point clouds app uses ARKit5 to get point cloud data.
 To orient itself in R3 the iPhone uses `ARWorldTrackingConfiguration` which is defined by Apple as: 'a class that tracks the device's movement with six degrees of freedom (6DOF): the three rotation axes (roll, pitch, and yaw), and three translation axes (movement in x, y, and z).'
-Alternatively, we can use `AROrientationTrackingConfiguration' which is defined by Apple as: 'a class that tracks the device's movement with three degrees of freedom (3DOF): specifically, the three rotation axes (roll, pitch, and yaw)' 
+
+Alternatively, we can use `AROrientationTrackingConfiguration` which is defined by Apple as: 'a class that tracks the device's movement with three degrees of freedom (3DOF): specifically, the three rotation axes (roll, pitch, and yaw)' 
 
 IMPORTANT: Apple states that the number of points in a pointcloud for a given frame is non-constant. So at time `a` our pointcloud, `p_a`, may contain `b` many points, and at time `c` our pointcloud, `p_c`, may contain `d` many points. Assuming `a != c`, we cannot state that `b = d`. This is because all the points that are in `p_a` are not allowed to be in `p_c` as they are non-new. Hence, the intersection of `p_a` and `p_b` is the empty set.
  
