@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
+	//"log"
 	"math"
 	"net/http"
 	"path"
@@ -139,7 +139,7 @@ func (c *Config) tryConnection() error {
 }
 
 func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud, error) {
-	log.Println("we have called the NextPointCloud() function")
+	//log.Println("we have called the NextPointCloud() function")
 	portString := strconv.Itoa(ip.Config.Port)
 	url := path.Join(ip.Config.Host+":"+portString, DefaultPath)
 	resp, err := http.Get("http://" + url)
@@ -162,23 +162,22 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	}
 
 	sb := measurement.PointCloud
-	log.Println("this is sb: ", sb)
 	points := stringConverter(sb)
-	log.Println("this is points: ", points)
-	log.Println(" ")
 	pc := pointcloud.New()
 
 	for i := 0; i < len(points); i++ {
-		err := pc.Set(pointcloud.NewBasicPoint(points[i][0], points[i][1], points[i][2]))
+		c := color.NRGBA{uint8(points[i][3]), uint8(points[i][4]), uint8(points[i][5]), 255}
+		err := pc.Set(pointcloud.NewColoredPoint(points[i][0], points[i][1], points[i][2], c))
 		if err != nil {
 			return nil, err
 		}
 	}
+	//log.Println("# of points in cloud: ", pc.Size())
 	return pc, nil
 }
 
 func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
-	log.Println("we have called the Next() function")
+	//log.Println("we have called the Next() function")
 	ip.mut.Lock()
 	defer ip.mut.Unlock()
 
@@ -186,7 +185,6 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-
 	minX := 0.0
 	minY := 0.0
 
@@ -202,8 +200,8 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 		return true
 	})
 
-	width := 1920
-	height := 1440
+	width := 1440
+	height := 1920
 
 	scale := func(x, y float64) (int, int) {
 		return int(float64(width) * ((x - minX) / (maxX - minX))),
@@ -218,16 +216,10 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 	}
 
 	pc.Iterate(func(p pointcloud.Point) bool {
-		set(p.Position().X, p.Position().Y, color.NRGBA{255, 0, 0, 255})
+		r, g, b := p.RGB255()
+		set(p.Position().X, p.Position().Y, color.NRGBA{r, g, b, 255})
 		return true
 	})
-
-	centerSize := .1
-	for x := -1 * centerSize; x < centerSize; x += .01 {
-		for y := -1 * centerSize; y < centerSize; y += .01 {
-			set(x, y, color.NRGBA{0, 255, 0, 255})
-		}
-	}
 
 	return img, nil, nil
 }
@@ -241,7 +233,6 @@ func stringConverter(s string) [][]float64 {
 	l0 := make([][]float64, len(point))
 	for i := 0; i < len(point); i++ {
 		l := make([]float64, 6)
-
 		new_point := strings.Split(point[i], ", ")
 		for j := 0; j < len(new_point); j++ {
 			if s, err := strconv.ParseFloat(new_point[j], 64); err == nil {
