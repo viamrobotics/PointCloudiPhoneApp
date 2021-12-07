@@ -9,7 +9,7 @@ As it stands the app cannot stream data in real time through a BLE connection. T
 
 ## Usage
 ### Setting up the app
-The 'point clouds.xcodeproj' file cannot be opened with Xcode version 12 because of ARKit 5.
+The `point clouds.xcodeproj` file cannot be opened with Xcode version 12 because of ARKit 5.
 To get Xcode 13 beta, [click here](https://developer.apple.com/xcode/).
 
 The point cloud app uses [CocoaPods](https://github.com/CocoaPods/CocoaPods) as its dependency manager, so you must have have it installed on your machine. It can be installed on a Mac with `brew install cocoapods`.
@@ -43,17 +43,17 @@ IMPORTANT: Apple states that the number of points in a pointcloud for a given fr
 ### Bluetooth
 
 **Connecting to RPI**
-1. on RPI run: `sudo hciconfig hci0 piscan" & 'sudo bluetoothctl`
+1. on RPI run: `sudo hciconfig hci0 piscan` & `sudo bluetoothctl`
 2. run app on phone
 3. on RPI run: `scan on`
-4. Look for the MAC address next to 'LiDAR Phone'
+4. Look for the MAC address next to `LiDAR Phone`
 5. on RPI run: `connect <MAC address>`
 6. on phone confirm connection request
 7. on RPI run: `menu gatt` and `list-attributes <MAC address>`
 8. on RPI find the characteristic (easily find with Crt+F "D6F60427")
 9. on RPI copy line above the UUID
 - e.g. `/org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a`
-- It is very important that the line you copy ends with `service0039/char003a` do not copy the one that ends with 'service0039'
+- It is very important that the line you copy ends with `service0039/char003a` do not copy the one that ends with `service0039`
 10. on RPI run: `select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>`
 11. on RPI run: `notify on`
 You should now be able to see a truncated point cloud streamed into the RPI
