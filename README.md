@@ -34,7 +34,7 @@ Note: The port value is by default set to 3000 on the app side and does not need
 
 ### ARKit
 The point clouds app uses ARKit5 to get point cloud data.
-To orient itself in R3 the iPhone uses `ARWorldTrackingConfiguration` which is defined by Apple as: 'a class that tracks the device's movement with six degrees of freedom (6DOF): the three rotation axes (roll, pitch, and yaw), and three translation axes (movement in x, y, and z).'
+To orient itself in R3 our app uses `ARWorldTrackingConfiguration` which is defined by Apple as: 'a class that tracks the device's movement with six degrees of freedom (6DOF): the three rotation axes (roll, pitch, and yaw), and three translation axes (movement in x, y, and z).'
 
 Alternatively, we can use `AROrientationTrackingConfiguration` which is defined by Apple as: 'a class that tracks the device's movement with three degrees of freedom (3DOF): specifically, the three rotation axes (roll, pitch, and yaw)' 
 
