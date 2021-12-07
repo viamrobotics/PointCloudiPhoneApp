@@ -11,10 +11,9 @@ import Swifter
 import OSLog
 import SwiftUI
 
+// Point cloud data
 struct Measurement: Codable {
-    // Point cloud data
     var poclo: String?
-    // e.g. [(a,b,c), (d,e,f), (g,h,i)] where a ... i are of type float
 }
 
 class Server {
