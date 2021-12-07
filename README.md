@@ -56,8 +56,11 @@ IMPORTANT: Apple states that the number of points in a pointcloud for a given fr
 - It is very important that the line you copy ends with `service0039/char003a` do not copy the one that ends with `service0039`
 10. on RPI run: `select-attribute </org/bluez/hci0/dev_69_BD_81_7B_FA_4D/service0039/char003a/this_should_be_copied_from_your_terminal>`
 11. on RPI run: `notify on`
+
 You should now be able to see a truncated point cloud streamed into the RPI
+
 NOTE: running `read` will result in error
+
 **Core Bluetooth**
 Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/corebluetooth) allows the iPhone to act as either a central or peripheral device.
 - Central devices scan for other devices. They access remote devices over a bluetooth low energy link using the GATT protocol.
