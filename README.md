@@ -21,7 +21,7 @@ Otherwise, run`pod install`.
 
 Open the `point clouds.xcworkspace` file.
 
-The `iplidar.json` file 'host' value needs to be entered to run the web ui.
+The `iplidar.json` file `host` value needs to be entered to run the web ui.
 To get the `host` value run the app with your phone connected to the computer.
 Running the app from Xcode will return something of the form:
 `2021-11-08 20:48:09.377920-0500 point clouds[31005:3747646] Our IP address: abc.def.ghi.lmn`
