@@ -263,7 +263,7 @@ class Renderer {
     
     func rbgpoints() -> String {
     
-        var points = [(0.012568152, -0.09462015, -0.20932771, 0.012568152, 0.09462015, 0.20932771)]
+        var points = [(0.012568152, -0.09462015, -0.20932771, 180.0, 180.0, 180.0)]
     
         if let currentFrame = session.currentFrame{
             if let cloud = currentFrame.rawFeaturePoints?.points{
@@ -275,16 +275,16 @@ class Renderer {
                     let z_coord : Double = Double(point.z.debugDescription)!
                     
                     let color = sampler!.getColor(atX: abs(x_coord/currentFrame.camera.imageResolution.width), y: abs(y_coord/currentFrame.camera.imageResolution.height))
-                    
+
                     let tup = (x_coord, y_coord, z_coord,
-                               color!.0, color!.1, color!.2)
+                               color.0, color.1, color.2)
                     
                     points.append(tup)
                 }
                 sampler!.freeMe()
                 if points.count > 1{
-                    // get rid of first value here
-                    return points.description
+                    let new_points = points[1...]
+                    return new_points.description
                 }
                 else { return points.description }
             }
@@ -293,38 +293,6 @@ class Renderer {
         else { return points.description }
     }
 
-    func r5points() -> String  {
-        var points = [(0.012568152, -0.09462015, -0.20932771)]
-        if let currentFrame = session.currentFrame?.rawFeaturePoints{
-            for point in currentFrame.points {
-                let x_coord : Double = Double(point.x.debugDescription)!
-                let y_coord : Double = Double(point.y.debugDescription)!
-                let z_coord : Double = Double(point.z.debugDescription)!
-                let tup = (x_coord,y_coord,z_coord)
-                points.append(tup)
-            }
-            //print(type(of: points)) -> Array<(Double, Double, Double)>
-            // remove first value of list here
-            return points.description
-        }
-        else { return points.description }
-    }
-    
-    func r3points() -> String {
-        var points : Array<(Double, Double, Double)> = [(0.012568152, -0.09462015, -0.20932771)]
-        guard let currentFrame = session.currentFrame?.rawFeaturePoints else {
-            return points.description
-        }
-        for point in currentFrame.points {
-            let x_coord : Double = Double(point.x.debugDescription)!
-            let y_coord : Double = Double(point.x.debugDescription)!
-            let z_coord : Double = Double(point.x.debugDescription)!
-            let tup = (x_coord,y_coord,z_coord)
-            points.append(tup)
-        }
-        return points.description
-    }
-    
     // called by 'didSubscribe' method in ViewController
     // for bluetooth functionality
     func pointcloud() -> Data {
