@@ -62,6 +62,7 @@ You should now be able to see a truncated point cloud streamed into the RPI
 NOTE: running `read` will result in error
 
 **Core Bluetooth**
+
 Apple's [Core Bluetooth framework](https://developer.apple.com/documentation/corebluetooth) allows the iPhone to act as either a central or peripheral device.
 - Central devices scan for other devices. They access remote devices over a bluetooth low energy link using the GATT protocol.
 - Peripheral devices advertise their presence and wait for connection requests. The infomation within a peripheral device is referenced by the name is its service
