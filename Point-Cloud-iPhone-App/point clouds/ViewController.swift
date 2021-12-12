@@ -62,7 +62,7 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
             renderer.drawRectResized(size: view.bounds.size)
             
             //start server
-            let _ = Server(renderer: renderer, refreshRateHz: 50, port: 3000)
+            let _ = Server(renderer: renderer, refreshRateHz: 50, port: 3000) 
         }
     }
 
@@ -78,13 +78,14 @@ class ViewController: UIViewController, MTKViewDelegate, ARSessionDelegate{
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
         // Don't keep advertising going while we're not showing.
         //peripheralManager.stopAdvertising()
         
         //stop the server
         self.HTTPserver.stop()
 
-        super.viewWillDisappear(animated)
         os_log("stopped advertising")
 
         // Pause the view's session
