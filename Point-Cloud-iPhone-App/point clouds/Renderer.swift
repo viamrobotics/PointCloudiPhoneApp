@@ -10,6 +10,7 @@ import Metal
 import MetalKit
 import ARKit
 import OSLog
+import UIKit
 
 protocol RenderDestinationProvider {
     var currentRenderPassDescriptor: MTLRenderPassDescriptor? { get }
@@ -230,7 +231,6 @@ class Renderer {
     }
 
 
-
     func updateBufferStates() {
         // Update the location(s) to which we'll write to in our dynamically changing Metal buffers for
         //   the current frame (i.e. update our slot in the ring buffer used for the current frame)
@@ -251,8 +251,9 @@ class Renderer {
 
         updateSharedUniforms(frame: currentFrame)
         updateCapturedImageTextures(frame: currentFrame)
-        //rbgpoints(frame: currentFrame)
-        //rbgpoints()
+        
+        
+        rbgpoints()
 
         if viewportSizeDidChange {
             viewportSizeDidChange = false
@@ -264,22 +265,37 @@ class Renderer {
     func rbgpoints() -> String {
     
         var points = [(0.012568152, -0.09462015, -0.20932771, 180.0, 180.0, 180.0)]
-    
+        
+        let screenSize: CGRect = UIScreen.main.bounds
+        let screenWidth = screenSize.width
+        let screenHeight = screenSize.height
+        let size: CGSize = CGSize(width: screenSize.width, height: screenHeight)
+        
         if let currentFrame = session.currentFrame{
             if let cloud = currentFrame.rawFeaturePoints?.points{
                 let sampler = try? CapturedImageSampler(frame: currentFrame)
                 for point in cloud {
+                    //print("point: \(point)")
                     
                     let x_coord : Double = Double(point.x.debugDescription)!
                     let y_coord : Double = Double(point.y.debugDescription)!
                     let z_coord : Double = Double(point.z.debugDescription)!
                     
-                    let color = sampler!.getColor(atX: abs(x_coord/currentFrame.camera.imageResolution.width), y: abs(y_coord/currentFrame.camera.imageResolution.height))
-
-                    let tup = (x_coord, y_coord, z_coord,
-                               color.0, color.1, color.2)
+                    var projection = currentFrame.camera.projectPoint(point, orientation: .portrait, viewportSize: size)
                     
-                    points.append(tup)
+//                    print("projection: \(projection)")
+                    // might need to flip the x and y axis bc we are in portrait mode
+                    if projection.x > 0 && projection.x < 390 && projection.y > 0 && projection.y < 844 {
+                        let color = sampler!.getColor(atX: projection.x / screenWidth, y: projection.y / screenHeight)
+//                        print("color: \(color)")
+                        let tup = (x_coord, y_coord, z_coord,
+                                   color.0, color.1, color.2)
+                        points.append(tup)
+                    } else {
+                        let tup = (x_coord, y_coord, z_coord,
+                                   255.0, 0.0, 0.0)
+                        points.append(tup)
+                    }
                 }
                 sampler!.freeMe()
                 if points.count > 1{
