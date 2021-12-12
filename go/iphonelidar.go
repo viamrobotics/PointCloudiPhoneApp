@@ -1,10 +1,6 @@
 // Package iphonelidar provides a command for viewing the output of an iPhone's camera
 package iphonelidar
 
-//ToDos:
-// add in code to incorporate rbg data
-// fix display because its weird
-
 import (
 	"context"
 	"encoding/json"
@@ -166,6 +162,7 @@ func (ip *IPhoneCam) NextPointCloud(ctx context.Context) (pointcloud.PointCloud,
 	pc := pointcloud.New()
 
 	for i := 0; i < len(points); i++ {
+		// c := color.NRGBA{0, 255, 0, 255}
 		c := color.NRGBA{uint8(points[i][3]), uint8(points[i][4]), uint8(points[i][5]), 255}
 		err := pc.Set(pointcloud.NewColoredPoint(points[i][0], points[i][1], points[i][2], c))
 		if err != nil {
@@ -200,6 +197,7 @@ func (ip *IPhoneCam) Next(ctx context.Context) (image.Image, func(), error) {
 		return true
 	})
 
+	// viewport: (390.0 ,844.0)
 	width := 1440
 	height := 1920
 
