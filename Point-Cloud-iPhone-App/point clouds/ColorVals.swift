@@ -124,7 +124,7 @@ class CapturedImageSampler {
 
         guard x >= 0 && x < 1 && y >= 0 && y < 1 else {
             // The coordinate is outside the valid range.
-            return (20.0, 20.0, 20.0, 20.0)
+            return (255.0, 0.0, 0.0, 1.0)
         }
         
         // The buffer order is horizontally flipped from the displayed orientation, so we'll
