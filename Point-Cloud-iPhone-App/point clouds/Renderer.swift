@@ -264,11 +264,9 @@ class Renderer {
     
     func rbgpoints() -> String {
     
-        var points = [(0.012568152, -0.09462015, -0.20932771, 180.0, 180.0, 180.0)]
+        var points = [(0.012568152, -0.09462015, -0.20932771, 180.0, 180.0, 180.0, 1.0)]
         var c = 0
         var i = 0
-        var ac = 0
-        var ai = 0
         
         if let currentFrame = session.currentFrame{
             if let cloud = currentFrame.rawFeaturePoints?.points{
@@ -280,45 +278,35 @@ class Renderer {
                     let y_coord : Double = Double(point.y.debugDescription)!
                     let z_coord : Double = Double(point.z.debugDescription)!
 
-                    let new_point = simd_float4(x: point.x, y: point.y, z: point.z, w: 1)
-                    let projectionMatrix = currentFrame.camera.projectionMatrix
-//                    let projectionMatrix = currentFrame.camera.projectionMatrix(for: .portrait, viewportSize: CGSize(width: 1440, height: 1920), zNear: 0.001, zFar: 1000.0)
-//                    print("projectionMatrix: \(projectionMatrix)")
-                    let viewMatrix = currentFrame.camera.viewMatrix(for: .portrait)
-//                    print("viewMatrix: \(viewMatrix)")
-                    let clipSpacePosition = projectionMatrix * viewMatrix * new_point
-                    let normalizedDeviceCoordinate = clipSpacePosition / clipSpacePosition.w
-                    let projection = CGPoint(
-                        x: (CGFloat(normalizedDeviceCoordinate.x) + 1) * (1440 / CGFloat(2)),
-                        y: ((-CGFloat(normalizedDeviceCoordinate.y) + 1)) * (1920 / CGFloat(2))
-                    )
-//                    print("matrix mult projection: \(projection)")
-                    let color = sampler!.getColor(atX: (projection.x / 1440), y: (projection.y / 1920) )
+//                    let new_point = simd_float4(x: point.x, y: point.y, z: point.z, w: 1)
+//                    let projectionMatrix = currentFrame.camera.projectionMatrix
+////                    let projectionMatrix = currentFrame.camera.projectionMatrix(for: .portrait, viewportSize: CGSize(width: 1440, height: 1920), zNear: 0.001, zFar: 1000.0)
+////                    print("projectionMatrix: \(projectionMatrix)")
+//                    let viewMatrix = currentFrame.camera.viewMatrix(for: .portrait)
+////                    print("viewMatrix: \(viewMatrix)")
+//                    let clipSpacePosition = projectionMatrix * viewMatrix * new_point
+//                    let normalizedDeviceCoordinate = clipSpacePosition / clipSpacePosition.w
+//                    let projection = CGPoint(
+//                        x: (CGFloat(normalizedDeviceCoordinate.x) + 1) * (1440 / CGFloat(2)),
+//                        y: ((-CGFloat(normalizedDeviceCoordinate.y) + 1)) * (1920 / CGFloat(2))
+//                    )
+//                    let color = sampler!.getColor(atX: (projection.x / 1440), y: (projection.y / 1920) )
                     
                     let proj = currentFrame.camera.projectPoint(point, orientation: .portrait, viewportSize: CGSize(width: 1440, height: 1920))
 //                    print("method projection: \(proj)")
 //                    print(" ")
                     
-                    let colorr = sampler!.getColor(atX: (proj.x / 1440), y: (proj.y / 1920) )
-                    
-
-                    let tup = (x_coord, y_coord, z_coord,
-                                   color.0, color.1, color.2)
-                    points.append(tup)
-                    if color.0 == 255.0 && color.1 == 0.0 && color.2 == 0.0 {
-                        i += 1
-                    } else {
+                    if 0.0 < proj.x && proj.x < 1440.0 && 0.0 < proj.y && proj.y < 1920.0 {
+                        let color = sampler!.getColor(atX: (proj.x / 1440), y: (proj.y / 1920))
+                        let tup = (x_coord, y_coord, z_coord,
+                                       color.0, color.1, color.2)
+                        points.append(tup)
                         c += 1
-                    }
-                    if colorr.0 == 255.0 && colorr.1 == 0.0 && colorr.2 == 0.0 {
-                        ai += 1
-                    } else {
-                        ac += 1
-                    }
+                        
+                    } else { i += 1}
                 }
                 sampler!.freeMe()
-                print("MATRIX MULT - this many were correct: \(c)    this many were incorrect: \(i)")
-                print("METHOD      - this many were correct: \(ac)    this many were incorrect: \(ai)")
+                print("this many were correct: \(c)    this many were incorrect: \(i)")
                 print(" ")
                 if points.count > 1{
                     let new_points = points[1...]

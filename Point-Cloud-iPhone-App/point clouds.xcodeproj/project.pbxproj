@@ -10,6 +10,7 @@
 		010E6356271B5A2E00F181DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010E6355271B5A2E00F181DD /* Server.swift */; };
 		010E6357271B5A2E00F181DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010E6355271B5A2E00F181DD /* Server.swift */; };
 		010E6358271B5A2E00F181DD /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010E6355271B5A2E00F181DD /* Server.swift */; };
+		016B9ECE276892D70037DBE3 /* ColorVals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016B9ECD276892D70037DBE3 /* ColorVals.swift */; };
 		017566D226EBD3EA007C800F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017566D126EBD3EA007C800F /* AppDelegate.swift */; };
 		017566D426EBD3EA007C800F /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 017566D326EBD3EA007C800F /* Shaders.metal */; };
 		017566D726EBD3EA007C800F /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017566D626EBD3EA007C800F /* Renderer.swift */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		010E6355271B5A2E00F181DD /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		016B9ECD276892D70037DBE3 /* ColorVals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorVals.swift; sourceTree = "<group>"; };
 		017566CE26EBD3EA007C800F /* point clouds.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "point clouds.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		017566D126EBD3EA007C800F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		017566D326EBD3EA007C800F /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				017566D326EBD3EA007C800F /* Shaders.metal */,
 				017566D526EBD3EA007C800F /* ShaderTypes.h */,
 				017566D626EBD3EA007C800F /* Renderer.swift */,
+				016B9ECD276892D70037DBE3 /* ColorVals.swift */,
 				010E6355271B5A2E00F181DD /* Server.swift */,
 				017566D826EBD3EA007C800F /* ViewController.swift */,
 				017566DA26EBD3EA007C800F /* Main.storyboard */,
@@ -341,6 +344,7 @@
 				017566D426EBD3EA007C800F /* Shaders.metal in Sources */,
 				017566D726EBD3EA007C800F /* Renderer.swift in Sources */,
 				017566D926EBD3EA007C800F /* ViewController.swift in Sources */,
+				016B9ECE276892D70037DBE3 /* ColorVals.swift in Sources */,
 				010E6356271B5A2E00F181DD /* Server.swift in Sources */,
 				017566D226EBD3EA007C800F /* AppDelegate.swift in Sources */,
 			);
