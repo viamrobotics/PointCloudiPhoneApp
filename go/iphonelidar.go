@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"math"
 	"net/http"
 	"path"
@@ -19,11 +18,11 @@ import (
 	"strings"
 	"sync"
 
-	"go.viam.com/core/camera"
-	"go.viam.com/core/config"
-	"go.viam.com/core/pointcloud"
-	"go.viam.com/core/registry"
-	"go.viam.com/core/robot"
+	"go.viam.com/rdk/component/camera"
+	"go.viam.com/rdk/config"
+	"go.viam.com/rdk/pointcloud"
+	"go.viam.com/rdk/registry"
+	"go.viam.com/rdk/robot"
 
 	"go.viam.com/utils"
 
@@ -65,7 +64,7 @@ const (
 
 // init registers the iphone lidar camera.
 func init() {
-	registry.RegisterCamera(modelname, registry.Camera{Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (camera.Camera, error) {
+	registry.RegisterComponent(camera.Subtype, modelname, registry.Component{Constructor: func(ctx context.Context, r robot.Robot, c config.Component, logger golog.Logger) (interface{}, error) {
 		iCam, err := New(ctx, Config{Host: c.ConvertedAttributes.(*iPConfig).Host, Port: c.ConvertedAttributes.(*iPConfig).Port}, logger)
 		if err != nil {
 			return nil, err
